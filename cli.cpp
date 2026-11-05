@@ -22,15 +22,36 @@ int lineparse(std::string& line) {
                 std::cout << sum << "\n";
             }
         } else if (line.find("sub") == 0) {
+            if (commaposition != std::string::npos) {
+                std::string left_side = line.substr(4, commaposition - 4);
+                std::string right_side = line.substr(commaposition + 1);
+                int leftnum = std::stoi(left_side);
+                int rightnum = std::stoi(right_side);
+                int sum = leftnum - rightnum;
+                std::cout << sum << "\n";
 
         } else if (line.find("mul") == 0) {
+            if (commaposition != std::string::npos) {
+                std::string left_side = line.substr(4, commaposition - 4);
+                std::string right_side = line.substr(commaposition + 1);
+                int leftnum = std::stoi(left_side);
+                int rightnum = std::stoi(right_side);
+                int sum = leftnum * rightnum;
+                std::cout << sum << "\n";
 
         } else if (line.find("div") == 0) {
+            if (commaposition != std::string::npos) {
+                std::string left_side = line.substr(4, commaposition - 4);
+                std::string right_side = line.substr(commaposition + 1);
+                int leftnum = std::stoi(left_side);
+                int rightnum = std::stoi(right_side);
+                int sum = leftnum / rightnum;
+                std::cout << sum << "\n";
 
         }
     }
     return 0;
-}
+} }}}
 
 int main() {
     std::string b1;

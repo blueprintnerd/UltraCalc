@@ -67,7 +67,7 @@ Use `apt` for anything else. Some common ones:
 | Yarn | `npm install -g yarn` |
 | PostgreSQL, MySQL and Redis clients | `sudo apt install -y postgresql-client mysql-client redis-tools` |
 | ffmpeg and ImageMagick | `sudo apt install -y ffmpeg imagemagick` |
-| htop | `sudo apt install -y htop` |
+| htop | `sudo apt install -y ht\op` |
 
 Run `sudo apt update` first if a package isn't found.
 

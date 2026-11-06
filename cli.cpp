@@ -20,6 +20,7 @@ int lineparse(std::string& line) {
         size_t minusposition = line.find("-");
         size_t multiposition = line.find("*");
         size_t divideposition = line.find("/");
+        size_t modulusposition = line.find("%");
         
         if (line.find("add") == 0) {
             if (commaposition != std::string::npos) {
@@ -30,7 +31,7 @@ int lineparse(std::string& line) {
                 int sum = leftnum + rightnum;
                 std::cout << sum << "\n";
                 run_calc(1);
-            } else if (line.find("+") == 0) {
+            } else if (line.find("+") == 1) {
                 if (plusposition != std::string::npos) {
                     std::string left_side = line.substr(4, plusposition - 4);
                     std::string right_side = line.substr(plusposition + 1);
@@ -47,9 +48,20 @@ int lineparse(std::string& line) {
                 int leftnum = std::stoi(left_side);
                 int rightnum = std::stoi(right_side);
                 int sum = rightnum - leftnum;
+                
                 std::cout << sum << "\n";
                 run_calc(1);
-            }
+              
+            }[]{;
+        } else if (line.find('-')){
+            std::string left_side = line.substr(4, minusposition -4);
+            std::string right_side = line.substr(minusposition +4);
+            int leftnum = std::stoi(left_side);
+            int rightnum = std::stoi(right_side);
+            int sum = leftnum - rightnum;
+            std::cout << sum << "\n";
+            run_calc(1);
+            
         } else if (line.find("mul") == 0) {
             if (commaposition != std::string::npos) {
                 std::string left_side = line.substr(4, commaposition - 4);
@@ -59,6 +71,19 @@ int lineparse(std::string& line) {
                 int sum = leftnum * rightnum;
                 std::cout << sum << "\n";
                 run_calc(1);
+                
+            } else if (line.find('*')) {
+                if (multiposition != std::string::npos) {
+                std::string left_side = line.substr(1, multiposition - 1);
+                std::string right_side = line.substr(commaposition + 1);
+                int leftnum = std::stoi(left_side);
+                int rightnum = std::stoi(right_side);
+                int sum = leftnum * rightnum;
+                std::cout << sum << "\n";
+                run_calc(1);
+                
+                
+                }
             }
         } else if (line.find("div") == 0) {
             size_t split_pos = (byposition != std::string::npos) ? byposition : commaposition;
@@ -77,6 +102,8 @@ int lineparse(std::string& line) {
                 run_calc(1);
             }
         }
+        //This was just to fill out my hours to a 6 cleanly. tomorrow add modulus
+        if (line.fins
     }
     return 0;
 } }

@@ -7,11 +7,13 @@ int lineparse(std::string& line) {
             
         } else if (line.rfind("help", 4) == 4) {
             std::cout << "equations are prefixed with add, sub, div, or mul.\n";
-            std::cout << "example: add 43, 54\n";
+            std::cout << "examples: add 43, 54 or sub 12 from 32 or div 8 by 2\n";
             std::cout << "run 'ext help' to learn more about extensions\n";
         }
     } else {
         size_t commaposition = line.find(',');
+        size_t fromposition = line.find("from");
+        
         if (line.find("add") == 0) {
             if (commaposition != std::string::npos) {
                 std::string left_side = line.substr(4, commaposition - 4);
@@ -22,9 +24,9 @@ int lineparse(std::string& line) {
                 std::cout << sum << "\n";
             }
         } else if (line.find("sub") == 0) {
-            if (commaposition != std::string::npos) {
-                std::string left_side = line.substr(4, commaposition - 4);
-                std::string right_side = line.substr(commaposition + 1);
+            if (fromposition != std::string::npos) {
+                std::string left_side = line.substr(4, fromposition - 4);
+                std::string right_side = line.substr(fromposition + 1);
                 int leftnum = std::stoi(left_side);
                 int rightnum = std::stoi(right_side);
                 int sum = leftnum - rightnum;

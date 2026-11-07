@@ -1,7 +1,28 @@
 #include <iostream>
 #include <string>
+#include "argparse/argparse.hpp"
 
 void run_calc(int previous_flag);
+
+int apiparse(std::string& operator, std::string& num1, std::string& num2) {
+    if (operator == '+' or operator == "add") {
+        char oper = 'A';
+    } else if (operator == '-' or operator == "sub") {
+        char oper = 'S';        
+    } else if (operator == '×' or operator == 'x' or operator == "mul") {
+        char oper = 'M'
+    } else if (operator == '÷' or operator == '/' or operator == "div") {
+        char oper = 'D'
+    }
+    switch(oper) {
+        case 'A':
+            break;
+        case 'B'
+        
+        // todo make switch statement and convert the operators to number maps
+        
+    }
+ }
 
 int lineparse(std::string& line) {
     if (line.rfind("ext", 0) == 0) {
@@ -25,7 +46,8 @@ int lineparse(std::string& line) {
         
         // orbit_hide:end
         if (line.find("add") == 0) {
-            if (commaposition != std::string::npos) {
+            if (c
+            ommaposition != std::string::npos) {
                 std::string left_side = line.substr(4, commaposition - 4);
                 std::string right_side = line.substr(commaposition + 1);
                 int leftnum = std::stoi(left_side);
@@ -50,7 +72,6 @@ int lineparse(std::string& line) {
                 int leftnum = std::stoi(left_side);
                 int rightnum = std::stoi(right_side);
                 int sum = rightnum - leftnum;
-                
               std::cout << sum << "\n";
                 run_calc(1);
               
@@ -141,7 +162,27 @@ void run_calc(int previous_flag) {
     }
 }
 
-int main() {
-    run_calc(0);
-    return 0;
-}
+int main(int argc, char *argv[]) {
+  argparse::ArgumentParser program("ultracalc");
+
+  program.add_argument("calcapi")
+    .help("extensions use this. ")
+    .nargs(3)
+    .scan<'num1', 
+  try {
+    program.parse_args(argc, argv);
+  }
+  catch (const std::exception& err) {
+    std::cerr << err.what() << std::endl;
+    std::cerr << program;
+    return 1;
+  }
+  auto calcapi = program.get<std::vector<std::string>>("calcapi");
+  string operator = calcapi[0]
+  string num1 = calcapi[1];
+  string num2 = calcapi[2];
+  //TODO: finish the API by making it solve and return the result
+  
+  std::cout << (input * input) << std::endl;
+  run_calc(0);
+  return 0;

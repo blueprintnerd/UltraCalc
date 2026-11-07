@@ -13,6 +13,7 @@ int lineparse(std::string& line) {
             run_calc(1);
         }
     } else {
+        // orbit_hide:expanded (size_t for operators)
         size_t commaposition = line.find(',');
         size_t fromposition = line.find("from");
         size_t byposition = line.find("by");
@@ -22,6 +23,7 @@ int lineparse(std::string& line) {
         size_t divideposition = line.find("/");
         size_t modulusposition = line.find("%");
         
+        // orbit_hide:end
         if (line.find("add") == 0) {
             if (commaposition != std::string::npos) {
                 std::string left_side = line.substr(4, commaposition - 4);
@@ -49,11 +51,11 @@ int lineparse(std::string& line) {
                 int rightnum = std::stoi(right_side);
                 int sum = rightnum - leftnum;
                 
-                std::cout << sum << "\n";
+              std::cout << sum << "\n";
                 run_calc(1);
               
-            }[]{;
-        } else if (line.find('-')){
+            }{;
+        } } } else if (line.find('-')){
             std::string left_side = line.substr(4, minusposition -4);
             std::string right_side = line.substr(minusposition +4);
             int leftnum = std::stoi(left_side);
@@ -72,6 +74,7 @@ int lineparse(std::string& line) {
                 std::cout << sum << "\n";
                 run_calc(1);
                 
+                
             } else if (line.find('*')) {
                 if (multiposition != std::string::npos) {
                 std::string left_side = line.substr(1, multiposition - 1);
@@ -81,8 +84,6 @@ int lineparse(std::string& line) {
                 int sum = leftnum * rightnum;
                 std::cout << sum << "\n";
                 run_calc(1);
-                
-                
                 }
             }
         } else if (line.find("div") == 0) {
@@ -103,7 +104,23 @@ int lineparse(std::string& line) {
             }
         }
         //This was just to fill out my hours to a 6 cleanly. tomorrow add modulus
-        if (line.fins
+        else if (line.find("mod") == 0) {
+            //modulus uses division code because it's basically division 
+            // I'll have to have to make this trigger a flag. anyway onto the net
+            size_t split_pos = (byposition != std::string::npos) ? byposition : commaposition;
+            size_t offset = (byposition != std::string::npos) ? 2 : 1;
+            if (split_pos != std::string::npos) {
+                std::string left_side = line.substr(4, split_pos - 4);
+                std::string right_side = line.substr(split_pos + offset);
+                int leftnum = std::stoi(left_side);
+                int rightnum = std::stoi(right_side);
+                if (rightnum != 0) {
+                    int moduluednum = leftnum % rightnum;
+                    std::cout << moduluednum << "\n";
+                }
+            
+            
+        }
     }
     return 0;
 } }

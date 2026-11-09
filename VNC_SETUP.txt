@@ -1,0 +1,32 @@
+UltraCalc VNC Setup
+===================
+
+VNC Server Details:
+- VNC Display: :1
+- VNC Port: 5901
+- WebSocket Port: 6080
+- Desktop Environment: XFCE4
+
+Access URL:
+- Web-based VNC (noVNC): http://localhost:6080/vnc.html
+- Direct VNC: localhost:5901
+
+Desktop Shortcut:
+- Location: /vercel/sandbox/UltraCalc/Desktop/UltraCalc.desktop
+- Application: python3 /vercel/sandbox/UltraCalc/qtgui.py
+- Icon: /vercel/sandbox/UltraCalc/.ultracalc-icon.png
+
+Running Services:
+1. Xvnc (VNC Server) on port 5901
+2. XFCE4 Desktop Environment on display :1
+3. websockify on port 6080 (proxies to VNC)
+
+To Test:
+1. Open a web browser
+2. Navigate to: http://localhost:6080/vnc.html
+3. Click "Connect"
+4. In the noVNC interface, you should see the XFCE4 desktop
+5. Look for the "UltraCalc" desktop shortcut
+6. Double-click it to run the calculator
+
+Note: The password is not set (SecurityTypes None), so no password is required.

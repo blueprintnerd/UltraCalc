@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=UltraCalc
+Comment=A powerful calculator with GUI
+Exec=python3 /vercel/sandbox/UltraCalc/qtgui.py
+Icon=/vercel/sandbox/UltraCalc/.ultracalc-icon.png
+Terminal=false
+Categories=Utility;Calculator;
+StartupWMClass=UltraCalc

@@ -17,31 +17,27 @@ class CalculatorApp(QMainWindow):
         self.setWindowTitle("UltraCalc")
         self.setFixedSize(400, 300)
         
-        # Central widget and layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
         
-        # LCD Display
+    
         self.lcd = QLCDNumber()
         self.lcd.setDigitCount(12)
         self.lcd.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
-        self.lcd.setStyleSheet("background-color: #f0f0f0; color: #000;")
         self.lcd.setFixedHeight(60)
         
-        # Input field
         self.input_field = QLineEdit()
-        self.input_field.setPlaceholderText("Enter equation (e.g., add 5, 3 or 10 + 5)")
+        self.input_field.setPlaceholderText("Enter an equation like you normally would...")
         self.input_field.setStyleSheet("font-size: 16px; padding: 8px;")
         self.input_field.returnPressed.connect(self.calculate)
         
-        # Button layout
+
         button_layout = QHBoxLayout()
         button_layout.setSpacing(10)
         
-        # Operator buttons
         self.btn_add = QPushButton("+")
         self.btn_sub = QPushButton("-")
         self.btn_mul = QPushButton("*")
@@ -56,16 +52,13 @@ class CalculatorApp(QMainWindow):
         # Equals button
         self.btn_equals = QPushButton("=")
         self.btn_equals.setFixedSize(50, 50)
-        self.btn_equals.setStyleSheet("font-size: 20px; font-weight: bold; background-color: #4CAF50; color: white;")
         self.btn_equals.clicked.connect(self.calculate)
         
         # Clear button
         self.btn_clear = QPushButton("C")
         self.btn_clear.setFixedSize(50, 50)
-        self.btn_clear.setStyleSheet("font-size: 20px; font-weight: bold; background-color: #f44336; color: white;")
         self.btn_clear.clicked.connect(self.clear_input)
-        
-        # Add buttons to layout
+    
         button_layout.addWidget(self.btn_add)
         button_layout.addWidget(self.btn_sub)
         button_layout.addWidget(self.btn_mul)
@@ -73,19 +66,12 @@ class CalculatorApp(QMainWindow):
         button_layout.addWidget(self.btn_mod)
         button_layout.addWidget(self.btn_equals)
         button_layout.addWidget(self.btn_clear)
-        
-        # Status label
-        self.status_label = QLabel("Ready")
-        self.status_label.setStyleSheet("color: #666; font-size: 12px;")
-        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        # Add widgets to main layout
+    
         layout.addWidget(self.lcd)
         layout.addWidget(self.input_field)
         layout.addLayout(button_layout)
-        layout.addWidget(self.status_label)
         
-        # Menu bar
+    
         self.create_menu_bar()
     
     def create_menu_bar(self):
@@ -115,11 +101,9 @@ class CalculatorApp(QMainWindow):
         if not equation:
             self.status_label.setText("Please enter an equation")
             return
-        
-        self.status_label.setText("Calculating...")
-        
+                
         try:
-            # Use ultracalcbase with --calcapi flag
+            
             result = self.run_ultracalc(equation)
             
             if result is not None:
@@ -132,15 +116,11 @@ class CalculatorApp(QMainWindow):
     
     def run_ultracalc(self, equation):
         """Run ultracalcbase with --calcapi flag to compute the result."""
-        # Parse the equation into operation and operands
-        # Supports: "add 5, 3", "5 + 3", "sub 10 from 20", etc.
-        
-        # Try to extract operation and numbers
+
         op = None
         num1 = None
         num2 = None
         
-        # Check for command-style input (add 5, 3)
         equation_lower = equation.lower()
         
         if equation_lower.startswith("add "):
@@ -180,7 +160,6 @@ class CalculatorApp(QMainWindow):
                 num1 = parts[0].strip()
                 num2 = parts[1].strip()
         else:
-            # Try to parse infix notation: "5 + 3", "10 - 2", etc.
             for operator in ["+", "-", "*", "/", "%", "x", "÷"]:
                 if operator in equation:
                     parts = equation.split(operator)
@@ -188,14 +167,13 @@ class CalculatorApp(QMainWindow):
                         op = operator
                         num1 = parts[0].strip()
                         num2 = parts[1].strip()
-                        # Normalize operator for ultracalcbase
+                    
                         if op in ["*", "x", "÷"]:
                             op = "mul" if op in ["*", "x"] else "div"
                         break
         
         if op and num1 and num2:
             try:
-                # Call ultracalcbase with --calcapi
                 cmd = ["./ultracalcbase", "--calcapi", op, num1, num2]
                 result = subprocess.run(
                     cmd,

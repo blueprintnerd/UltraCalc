@@ -4,3 +4,5 @@ about.md
 build
 examples
 FTXUI*
+*.desktop
+UltraCalc.desktop

@@ -2,8 +2,9 @@
 Version=1.0
 Type=Application
 Name=UltraCalc
-Comment=A powerful calculator with GUI
-Exec=python3 /vercel/sandbox/UltraCalc/qtgui.py
+Comment=UltraCalc GUI calculator
+Exec=env QT_QPA_PLATFORM=offscreen python3 /vercel/sandbox/UltraCalc/qtgui.py
+Path=/vercel/sandbox/UltraCalc
 Icon=/vercel/sandbox/UltraCalc/.ultracalc-icon.png
 Terminal=false
 Categories=Utility;Calculator;

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 
-
 void run_calc(int previous_flag);
 
 int lineparse(std::string& line) {

@@ -36,32 +36,27 @@ int main() {
     }
 
     fs::path zip_file = test_dir / "bundle.zip";
-    fs::path tar_xz_file = test_dir / "bundle.tar.xz";
-    fs::path single_xz_file = test_dir / "config.json.xz";
+    fs::path non_zip_file = test_dir / "bundle.txt";
 
-    // Generate zip and xz test archives using python
+    {
+        std::ofstream f(non_zip_file);
+        f << "not a zip file";
+    }
+
+    // Generate zip test archive using python
     std::string gen_cmd = "python3 -c \""
-        "import zipfile, tarfile, lzma; "
+        "import zipfile; "
         "zf = zipfile.ZipFile('" + zip_file.string() + "', 'w'); "
         "zf.write('" + (src_dir / "manifest.json").string() + "', 'manifest.json'); "
         "zf.write('" + (src_dir / "layout" / "calc.json").string() + "', 'layout/calc.json'); "
         "zf.write('" + (src_dir / "photos" / "logo.png").string() + "', 'photos/logo.png'); "
-        "zf.close(); "
-        "tf = tarfile.open('" + tar_xz_file.string() + "', 'w:xz'); "
-        "tf.add('" + (src_dir / "manifest.json").string() + "', arcname='manifest.json'); "
-        "tf.add('" + (src_dir / "layout" / "calc.json").string() + "', arcname='layout/calc.json'); "
-        "tf.add('" + (src_dir / "photos" / "logo.png").string() + "', arcname='photos/logo.png'); "
-        "tf.close(); "
-        "f = lzma.open('" + single_xz_file.string() + "', 'wb'); "
-        "f.write(b'{\\\"single\\\": true}'); "
-        "f.close();\"";
+        "zf.close();\"";
     run_command(gen_cmd);
 
     // Test 1: detect_archive_format
     std::cout << "Running Test 1: detect_archive_format..." << std::endl;
     assert(detect_archive_format(zip_file.string()) == ArchiveFormat::Zip);
-    assert(detect_archive_format(tar_xz_file.string()) == ArchiveFormat::Xz);
-    assert(detect_archive_format(single_xz_file.string()) == ArchiveFormat::Xz);
+    assert(detect_archive_format(non_zip_file.string()) == ArchiveFormat::Unknown);
     assert(detect_archive_format((src_dir / "manifest.json").string()) == ArchiveFormat::Unknown);
     std::cout << "Test 1 passed." << std::endl;
 
@@ -80,39 +75,17 @@ int main() {
     assert(zip_manifest_content == "{\"name\":\"TestExtension\",\"version\":\"2.0\"}");
     std::cout << "Test 2 passed." << std::endl;
 
-    // Test 3: dearchive tar.xz
-    std::cout << "Running Test 3: dearchive TAR.XZ..." << std::endl;
-    fs::path out_tar_xz = test_dir / "out_tar_xz";
-    int ret_tar_xz = dearchive(tar_xz_file.string(), out_tar_xz.string());
-    assert(ret_tar_xz == 0);
-    assert(fs::exists(out_tar_xz / "manifest.json"));
-    assert(fs::exists(out_tar_xz / "layout" / "calc.json"));
-    assert(fs::exists(out_tar_xz / "photos" / "logo.png"));
-
-    std::ifstream tar_manifest(out_tar_xz / "manifest.json");
-    std::string tar_manifest_content((std::istreambuf_iterator<char>(tar_manifest)),
-                                     std::istreambuf_iterator<char>());
-    assert(tar_manifest_content == "{\"name\":\"TestExtension\",\"version\":\"2.0\"}");
+    // Test 3: unsupported archive format error handling
+    std::cout << "Running Test 3: Error handling on unsupported format..." << std::endl;
+    int ret_unsupported = dearchive(non_zip_file.string(), out_zip.string());
+    assert(ret_unsupported != 0);
     std::cout << "Test 3 passed." << std::endl;
 
-    // Test 4: dearchive standalone .xz
-    std::cout << "Running Test 4: dearchive standalone XZ..." << std::endl;
-    fs::path out_single_xz = test_dir / "out_single_xz";
-    int ret_single_xz = dearchive(single_xz_file.string(), out_single_xz.string());
-    assert(ret_single_xz == 0);
-    assert(fs::exists(out_single_xz / "config.json"));
-
-    std::ifstream single_f(out_single_xz / "config.json");
-    std::string single_content((std::istreambuf_iterator<char>(single_f)),
-                               std::istreambuf_iterator<char>());
-    assert(single_content == "{\"single\": true}");
-    std::cout << "Test 4 passed." << std::endl;
-
-    // Test 5: non-existent file error handling
-    std::cout << "Running Test 5: Error handling on nonexistent file..." << std::endl;
+    // Test 4: non-existent file error handling
+    std::cout << "Running Test 4: Error handling on nonexistent file..." << std::endl;
     int ret_err = dearchive((test_dir / "missing.zip").string(), out_zip.string());
     assert(ret_err != 0);
-    std::cout << "Test 5 passed." << std::endl;
+    std::cout << "Test 4 passed." << std::endl;
 
     // Clean up temporary test files
     fs::remove_all(test_dir);

@@ -1,0 +1,7 @@
+{
+  "name": "ucalc-gui",
+  "version": "0.9.0",
+  "description": "A GUI for UltraCalc",
+  "main": "init.lua"
+  "ext_type": "frontend
+}

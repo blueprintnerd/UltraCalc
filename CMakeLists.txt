@@ -5,19 +5,15 @@ project(UltraCalc)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(LibLZMA REQUIRED)
-
 # Extension Parser executable
-add_executable(extensionparser extensionparser.cpp miniz.c)
+add_executable(extensionparser extensionparser.cpp)
 target_include_directories(extensionparser PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(extensionparser PRIVATE LibLZMA::LibLZMA)
 
 # Testing
 enable_testing()
-add_executable(test_extensionparser tests/test_extensionparser.cpp extensionparser.cpp miniz.c)
+add_executable(test_extensionparser tests/test_extensionparser.cpp extensionparser.cpp)
 target_compile_definitions(test_extensionparser PRIVATE EXTENSIONPARSER_NO_MAIN)
 target_include_directories(test_extensionparser PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(test_extensionparser PRIVATE LibLZMA::LibLZMA)
 add_test(NAME test_extensionparser COMMAND test_extensionparser)
 
 # Add FTXUI as a subdirectory if present

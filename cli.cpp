@@ -13,7 +13,7 @@ int lineparse(std::string& line) {
             run_calc(1);
         }
     } else {
-        // orbit_hide:collapsed (size_t for operators)
+        // orbit_hide:expanded (size_t for operators)
         size_t commaposition = line.find(',');
         size_t fromposition = line.find("from");
         size_t byposition = line.find("by");
@@ -63,7 +63,6 @@ int lineparse(std::string& line) {
             int sum = leftnum - rightnum;
             std::cout << sum << "\n";
             run_calc(1);
-            //TODO: fix the app counting all multiplication equations as zero.
         } else if (line.find("mul") == 0) {
             if (commaposition != std::string::npos) {
                 std::string left_side = line.substr(4, commaposition - 4);
@@ -105,7 +104,6 @@ int lineparse(std::string& line) {
             }
         }
         else if (line.find("mod") == 0) {
-            //modulus uses division code because it's basically division 
             size_t split_pos = (byposition != std::string::npos) ? byposition : commaposition;
             size_t offset = (byposition != std::string::npos) ? 2 : 1;
             if (split_pos != std::string::npos) {

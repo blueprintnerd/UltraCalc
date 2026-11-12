@@ -1,4 +1,4 @@
-// orbit_hide:expanded (Includes (dependencies))
+// orbit_hide:collapsed (Includes (dependencies)
 #include "extensionparser.hpp"
 #include "miniz.c"
 #include "json.hpp"
@@ -22,6 +22,7 @@ struct ExtensionMetadata {
     std::string version = "1.0.0";
     std::string description;
     std::string entry_point;
+    std::string extension_type;
     bool valid = false;
 };
 
@@ -31,7 +32,7 @@ static std::string get_username() {
     return user ? std::string(user) : "default_user";
 }
 
-// orbit_hide:expanded (Unzipping functions)
+// orbit_hide:collapsed (Unzipping functions)
 static std::string to_lower(const std::string& str) {
     std::string lower = str;
     std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char c) {
@@ -83,7 +84,7 @@ bool extract_zip(const std::string& archive_path, const std::string& destination
     std::memset(&zip_archive, 0, sizeof(zip_archive));
 
     if (!mz_zip_reader_init_file(&zip_archive, archive_path.c_str(), 0)) {
-        std::cerr << "Error: failed to open zip archive: " << archive_path << "\n";
+        std::cerr << "[ex5] Error: failed to open extension archive: " << archive_path << "\n";
         return false;
     }
 
@@ -114,7 +115,7 @@ bool extract_zip(const std::string& archive_path, const std::string& destination
                 fs::create_directories(target_path.parent_path(), ec);
             }
             if (!mz_zip_reader_extract_to_file(&zip_archive, i, target_path.string().c_str(), 0)) {
-                std::cerr << "Error: failed to extract zip entry: " << filename << "\n";
+                std::cerr << "[ex4] Error: failed to extract extension: " << filename << "\n";
                 mz_zip_reader_end(&zip_archive);
                 return false;
             }
@@ -125,13 +126,13 @@ bool extract_zip(const std::string& archive_path, const std::string& destination
     return true;
 }
 
-int dearchive(const std::string& extension_file, const std::string& destination_dir) {
+int dearchive(const std::string& extension_file, const std::string& destiination_dir) {
     ArchiveFormat format = detect_archive_format(extension_file);
     switch (format) {
         case ArchiveFormat::Zip:
             return extract_zip(extension_file, destination_dir) ? 0 : 1;
         default:
-            std::cerr << "Error: unsupported extension format for " << extension_file << "\n";
+            std::cerr << "[ex2] Error: unsupported extension format for " << extension_file << "\n";
             return 2;
     }
 }
@@ -156,8 +157,6 @@ ExtensionMetadata parse_extension_json(const fs::path& extension_dir) {
     if (!fs::exists(json_path)) {
         json_path = extension_dir / "extension.json";
     }
-
-    // Search one level deep if the zip contained a root wrapper folder
     if (!fs::exists(json_path)) {
         std::error_code ec;
         for (const auto& entry : fs::directory_iterator(extension_dir, ec)) {
@@ -190,6 +189,7 @@ ExtensionMetadata parse_extension_json(const fs::path& extension_dir) {
         meta.version     = data.value("version", "1.0.0");
         meta.description = data.value("description", "");
         meta.entry_point = data.value("main", "");
+        meta.extensiontype = data.value("exttype", "");
         meta.valid       = !meta.name.empty();
     } catch (const json::parse_error& e) {
         std::cerr << "[ex3] (error) Invalid JSON in " << json_path << ": " << e.what() << "\n";
@@ -211,7 +211,7 @@ int install_extension(const std::string& extension_file, const std::string& cust
         return 1;
     }
 
-    // Use the archive's filename stem (e.g., "matrix_solver.zip" -> "matrix_solver") for the new subfolder
+    
     fs::path archive_path(extension_file);
     std::string stem = archive_path.stem().string();
     if (stem.empty()) {
@@ -233,7 +233,7 @@ int install_extension(const std::string& extension_file, const std::string& cust
         if (!safe_name.empty()) {
             fs::path new_folder = base_folder / safe_name;
             if (new_folder != target_folder) {
-                fs::remove_all(new_folder, ec); // Overwrite previous install of the same extension
+                fs::remove_all(new_folder, ec); // Overwrite previous install of the same extensio
                 fs::rename(target_folder, new_folder, ec);
                 if (!ec) {
                     target_folder = new_folder;

@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraCalc UIGen</title>
+   <!-- TODO:UNVIBE UI -->
+    <style>
+        :root {
+            --bg-app: eggshell;
+            --bg-panel: eggshell;
+            --bg-input: eggshell;
+            --border: gray;
+            --text-main: #e6e9f0;
+            --text-muted: #8b93a7;
+            --accent: #FF7F50;
+            --accent-hover: #3b76e8;
+            --danger: #e05260;
+            --success: #34c77b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-app);
+            color: var(--text-main);
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .topbar {
+            height: 52px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+            color: var(--text-main);
+        }
+
+        .brand span {
+            color: var(--accent);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: 1px solid black;
+            background: coral;
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        button:hover {
+            border: 3px solid black;
+            border-color: #404860;
+        }
+
+        button.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        button.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        button.success {
+            background: var(--success);
+            border-color: var(--success);
+            color: #0b1912;
+            font-weight: 600;
+        }
+
+        button.success:hover {
+            filter: brightness(1.08);
+        }
+
+        button.danger {
+            background: transparent;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        button.danger:hover {
+            background: rgba(224, 82, 96, 0.15);
+        }
+
+        button.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        /* Main Workspace */
+        .workspace {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+
+        
+        .sidebar-left {
+            width: 260px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+        
+        .stage {
+            flex: 1;
+            background: black;
+            background-size: 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: 32px;
+            position: relative;
+        }
+
+        #canvas-wrapper {
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+            border: 1px solid #3c4358;
+            border-radius: 12px;
+            overflow: hidden;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        #calc-canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        #calc-canvas.show-grid {
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 8px 8px;
+        }
+
+        .canvas-resize-handle {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 16px;
+            height: 16px;
+            cursor: nwse-resize;
+            background: mint;
+            z-index: 50;
+        }
+
+        .canvas-dim-badge {
+            position: absolute;
+            bottom: 8px;
+            left: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: rgba(15, 17, 23, 0.75);
+            padding: 3px 8px;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        /* Draggable Elements on Canvas */
+        .ui-element {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            user-select: none;
+            transition: box-shadow 0.1s;
+        }
+
+        .ui-element.preview-mode {
+            cursor: pointer;
+        }
+
+        .ui-element.selected {
+            outline: 2px solid var(--accent);
+            outline-offset: 1px;
+            z-index: 20;
+        }
+
+        .ui-element .el-resize {
+            position: absolute;
+            right: -4px;
+            bottom: -4px;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border: 1px solid #fff;
+            border-radius: 2px;
+            cursor: nwse-resize;
+            display: none;
+        }
+
+        .ui-element.selected .el-resize {
+            display: block;
+        }
+
+        .ui-display {
+            justify-content: flex-end;
+            padding: 0 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Right Sidebar: Inspector */
+        .sidebar-right {
+            width: 290px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 8px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 30px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 2px;
+            cursor: pointer;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .preset-grid button {
+            font-size: 11px;
+            padding: 5px 4px;
+        }
+
+        .ttf-dropzone {
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            background: var(--bg-input);
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .ttf-dropzone:hover, .ttf-dropzone.dragover {
+            border-color: var(--accent);
+            background: rgba(79, 140, 255, 0.08);
+        }
+
+        .ttf-status {
+            font-size: 12px;
+            color: var(--success);
+            word-break: break-all;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            width: 640px;
+            max-width: 92vw;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow: auto;
+        }
+
+        pre {
+            background: var(--bg-app);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 12px;
+            overflow-x: auto;
+            color: #c8d3f5;
+        }
+
+        .mobile-nav {
+            display: none;
+        }
+
+        #edit-selected-pill {
+            display: none;
+        }
+
+        @media (max-width: 820px) {
+            .topbar {
+                height: auto;
+                flex-wrap: wrap;
+                padding: 8px 10px;
+                gap: 8px;
+            }
+
+            .topbar-left,
+            .topbar-actions {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .topbar button {
+                padding: 7px 10px;
+                font-size: 12px;
+                min-height: 36px;
+            }
+
+            .workspace {
+                flex-direction: column;
+            }
+
+            .sidebar-left,
+            .sidebar-right,
+            .stage {
+                display: none;
+                width: 100%;
+                height: 100%;
+                border-right: none;
+                border-left: none;
+            }
+
+            .sidebar-left.mobile-active,
+            .sidebar-right.mobile-active {
+                display: flex;
+            }
+
+            .stage.mobile-active {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 16px 12px 24px;
+                gap: 10px; 
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select {
+                min-height: 40px;
+                font-size: 14px;
+            }
+
+            .ui-element,
+            .el-resize-handle,
+            .canvas-resize-handle {
+                touch-action: none;
+            }
+
+            .el-resize-handle {
+                width: 16px;
+                height: 16px;
+                right: -5px;
+                bottom: -5px;
+                border-radius: 50%;
+            }
+
+            .mobile-nav {
+                height: 54px;
+                background: var(--bg-panel);
+                border-top: 1px solid var(--border);
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                flex-shrink: 0;
+            }
+
+            .mobile-nav button {
+                border: none;
+                border-radius: 0;
+                background: transparent;
+                color: var(--text-muted);
+                font-size: 13px;
+                font-weight: 600;
+                height: 100%;
+            }
+
+            .mobile-nav button.active {
+                background: rgba(79, 140, 255, 0.14);
+                color: var(--accent);
+                border-top: 2px solid var(--accent);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="brand">UltraCalc</div>
+            <button id="btn-mode-design" class="active" onclick="setMode('design')">Design Mode</button>
+            <button id="btn-mode-preview" onclick="setMode('preview')">Test Calculator</button>
+        </div>
+
+        <div class="topbar-actions">
+            <button onclick="addButton()">+ Add Button</button>
+            <button onclick="resetLayout()">Reset Layout</button>
+            <button onclick="openSpecModal()">View Spec</button>
+            <button class="success" onclick="packageExtension()">Package Extension (.uce)</button>
+        </div>
+
+    </header>
+
+    <div class="workspace">
+        <!-- Calc Builder -->
+        <aside class="sidebar-left">
+            <div class="section">
+                <div class="section-title">App Dimensions</div>
+                <div class="field-row">
+                    <div class="field">
+                        <label for="canvas-w">Width (px)</label>
+                        <input type="number" id="canvas-w" min="200" max="1200" value="340">
+                    </div>
+
+                    <div class="field">
+                        <label for="canvas-h">Height (px)</label>
+                        <input type="number" id="canvas-h" min="200" max="1200" value="480">
+                    </div>
+
+                </div>
+
+                <div class="preset-grid">
+                    <button onclick="applyCanvasPreset(300, 420)">Compact</button>
+                    <button onclick="applyCanvasPreset(340, 480)">Standard</button>
+                    <button onclick="applyCanvasPreset(460, 380)">Wide</button>
+                </div>
+
+                <div class="field">
+                    <label for="canvas-bg">Window Background</label>
+                    <input type="color" id="canvas-bg" value="#1a1d26">
+                </div>
+
+                <label class="checkbox-row">
+                    <input type="checkbox" id="snap-grid" checked>
+                    Snap to grid
+                </label>
+            </div>
+
+
+            <div class="section">
+                <div class="section-title">Font (.ttf / .otf)</div>
+                <div class="ttf-dropzone" id="ttf-dropzone" onclick="document.getElementById('ttf-input').click()">
+                    Click or drop a <strong>.ttf</strong> font file here
+                    <input type="file" id="ttf-input" accept=".ttf,.otf,.woff,.woff2" style="display:none">
+                </div>
+
+                <div id="ttf-info" class="hint">Using default system font</div>
+                <button id="btn-clear-ttf" style="display:none" onclick="clearTtf()">Remove Custom Font</button>
+            </div>
+
+
+            <div class="section">
+                <div class="section-title">Extension Package</div>
+                <div class="field">
+                    <label for="ext-name">Extension Name</label>
+                    <input type="text" id="ext-name" value="ucalc-custom-gui">
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label for="ext-version">Version</label>
+                        <input type="text" id="ext-version" value="1.0.0">
+                    </div>
+
+                    <div class="field">
+                        <label for="ext-main">Entry Point</label>
+                        <select id="ext-main">
+                            <option value="gui.py">gui.py (PyQt6/Tk)</option>
+                            <option value="index.html">index.html (Web)</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="field">
+                    <label for="ext-desc">Description</label>
+                    <input type="text" id="ext-desc" value="Custom GUI frontend for UltraCalc">
+                </div>
+
+                <p class="hint">
+                    Generates a <code>.uce</code> extension with <code>manifest.json</code>, <code>layout/calc.json</code>, <code>gui.py</code>, <code>index.html</code>, and your <code>.ttf</code> font.
+                </p>
+            </div>
+
+        </aside>
+
+        <!-- Center Stage -->
+        <main class="stage mobile-active">
+            <button id="edit-selected-pill" onclick="switchMobileTab('inspector')">Edit Selected</button>
+            <div id="canvas-wrapper">
+                <div id="calc-canvas" class="show-grid"></div>
+                <div class="canvas-resize-handle" id="canvas-resize-handle" title="Drag to resize window"></div>
+            </div>
+
+            <div class="canvas-dim-badge" id="dim-badge">340 x 480</div>
+        </main>
+
+        <!-- Right Sidebar: Element Inspector -->
+        <aside class="sidebar-right">
+            <div class="section">
+                <div class="section-title" id="inspector-title">Selected Element</div>
+                <div id="no-selection" class="hint">Click the display or any button on the canvas to edit its position, size, style, and action.</div>
+                <div id="inspector-fields" style="display:none; flex-direction:column; gap:10px;">
+                    <div class="field" id="field-label">
+                        <label for="el-label">Label</label>
+                        <input type="text" id="el-label">
+                    </div>
+
+                    <div class="field" id="field-action">
+                        <label for="el-action">Action / Value</label>
+                        <select id="el-action">
+                            <optgroup label="Digits">
+                                <option value="0">Digit 0</option>
+                                <option value="1">Digit 1</option>
+                                <option value="2">Digit 2</option>
+                                <option value="3">Digit 3</option>
+                                <option value="4">Digit 4</option>
+                                <option value="5">Digit 5</option>
+                                <option value="6">Digit 6</option>
+                                <option value="7">Digit 7</option>
+                                <option value="8">Digit 8</option>
+                                <option value="9">Digit 9</option>
+                                <option value=".">Decimal (.)</option>
+                            </optgroup>
+                            <optgroup label="Operators">
+                                <option value="+">Add (+)</option>
+                                <option value="-">Subtract (-)</option>
+                                <option value="*">Multiply (*)</option>
+                                <option value="/">Divide (/)</option>
+                                <option value="%">Modulo (%)</option>
+                            </optgroup>
+                            <optgroup label="Controls">
+                                <option value="=">Equals (=)</option>
+                                <option value="C">Clear (C)</option>
+                                <option value="DEL">Backspace (DEL)</option>
+                                
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="el-x">X (px)</label>
+                            <input type="number" id="el-x">
+                        </div>
+
+                        <div class="field">
+                            <label for="el-y">Y (px)</label>
+                            <input type="number" id="el-y">
+                        </div>
+
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="el-w">Width (px)</label>
+                            <input type="number" id="el-w" min="16">
+                        </div>
+
+                        <div class="field">
+                            <label for="el-h">Height (px)</label>
+                            <input type="number" id="el-h" min="16">
+                        </div>
+
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="el-bg">Background</label>
+                            <input type="color" id="el-bg">
+                        </div>
+
+                        <div class="field">
+                            <label for="el-fg">Text Color</label>
+                            <input type="color" id="el-fg">
+                        </div>
+
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="el-font-size">Font Size (px)</label>
+                            <input type="number" id="el-font-size" min="8" max="96">
+                        </div>
+
+                        <div class="field">
+                            <label for="el-radius">Radius (px)</label>
+                            <input type="number" id="el-radius" min="0" max="64">
+                        </div>
+
+                    </div>
+
+                    <button class="danger" id="btn-delete-el" onclick="deleteSelected()">Delete Button</button>
+                </div>
+
+            </div>
+
+
+            <div class="section">
+                <div class="section-title">Tips</div>
+                <p class="hint">
+                    - Drag buttons or the display anywhere on the canvas.<br>
+                    - Drag the blue corner handle on a selected item or the canvas bottom-right corner to resize.<br>
+                </p>
+            </div>
+
+        </aside>
+    </div>
+
+
+    <nav class="mobile-nav">
+        <button id="mnav-canvas" class="active" onclick="switchMobileTab('canvas')">Canvas</button>
+        <button id="mnav-inspector" onclick="switchMobileTab('inspector')">Inspector</button>
+        <button id="mnav-settings" onclick="switchMobileTab('settings')">Settings</button>
+    </nav>
+
+
+    <div class="modal-backdrop" id="spec-modal" onclick="if(event.target===this) closeSpecModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <strong>Extension Manifest &amp; Layout Spec</strong>
+                <button onclick="closeSpecModal()">Close</button>
+            </div>
+
+            <div class="modal-body">
+                <pre id="spec-output"></pre>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+        const GRID_SIZE = 8;
+        let mode = 'design'; // 'design' | 'preview'
+        let selectedId = null;
+        let customFont = null; // { filename: string, bytes: Uint8Array, family: string }
+        let calcExpr = '';
+
+        const state = {
+            width: 340,
+            height: 480,
+            background: '#1a1d26',
+            snap: true,
+            elements: []
+        };
+
+        function createDefaultElements() {
+            const elements = [
+                {
+                    id: 'display',
+                    type: 'display',
+                    label: '0',
+                    action: 'display',
+                    x: 16,
+                    y: 24,
+                    w: 308,
+                    h: 72,
+                    bg: '#0f1219',
+                    fg: '#e6e9f0',
+                    fontSize: 32,
+                    radius: 10
+                }
+            ];
+
+            const rows = [
+                [{ l: 'C', a: 'C', bg: '#3b252c', fg: '#ff7b89' }, { l: 'DEL', a: 'DEL', bg: '#2b3040', fg: '#e6e9f0' }, { l: '%', a: '%', bg: '#2b3040', fg: '#7aa2f7' }, { l: '/', a: '/', bg: '#2b3040', fg: '#7aa2f7' }],
+                [{ l: '7', a: '7' }, { l: '8', a: '8' }, { l: '9', a: '9' }, { l: '*', a: '*', bg: '#2b3040', fg: '#7aa2f7' }],
+                [{ l: '4', a: '4' }, { l: '5', a: '5' }, { l: '6', a: '6' }, { l: '-', a: '-', bg: '#2b3040', fg: '#7aa2f7' }],
+                [{ l: '1', a: '1' }, { l: '2', a: '2' }, { l: '3', a: '3' }, { l: '+', a: '+', bg: '#2b3040', fg: '#7aa2f7' }],
+                [{ l: '0', a: '0', w: 148 }, { l: '.', a: '.' }, { l: '=', a: '=', bg: '#4f8cff', fg: '#ffffff' }]
+            ];
+
+            let y = 112;
+            let idx = 1;
+            for (const row of rows) {
+                let x = 16;
+                for (const item of row) {
+                    const w = item.w || 70;
+                    const h = 62;
+                    elements.push({
+                        id: 'btn_' + (idx++),
+                        type: 'button',
+                        label: item.l,
+                        action: item.a,
+                        x,
+                        y,
+                        w,
+                        h,
+                        bg: item.bg || '#232836',
+                        fg: item.fg || '#e6e9f0',
+                        fontSize: 20,
+                        radius: 10
+                    });
+                    x += w + 8;
+                }
+                y += 70;
+            }
+            return elements;
+        }
+
+        function snapVal(val) {
+            return state.snap ? Math.round(val / GRID_SIZE) * GRID_SIZE : Math.round(val);
+        }
+
+        // --- Rendering ---
+        const canvasWrapper = document.getElementById('canvas-wrapper');
+        const calcCanvas = document.getElementById('calc-canvas');
+        const dimBadge = document.getElementById('dim-badge');
+
+        function renderCanvas() {
+            canvasWrapper.style.width = state.width + 'px';
+            canvasWrapper.style.height = state.height + 'px';
+            calcCanvas.style.background = state.background;
+            calcCanvas.classList.toggle('show-grid', mode === 'design' && state.snap);
+            dimBadge.textContent = `${state.width} x ${state.height}`;
+
+            document.getElementById('canvas-w').value = state.width;
+            document.getElementById('canvas-h').value = state.height;
+            document.getElementById('canvas-bg').value = state.background;
+
+            calcCanvas.innerHTML = '';
+            const fontFamily = customFont ? `'${customFont.family}', sans-serif` : 'inherit';
+
+            for (const el of state.elements) {
+                const div = document.createElement('div');
+                div.className = 'ui-element' +
+                    (el.type === 'display' ? ' ui-display' : '') +
+                    (mode === 'preview' ? ' preview-mode' : '') +
+                    (mode === 'design' && el.id === selectedId ? ' selected' : '');
+                div.dataset.id = el.id;
+                div.style.left = el.x + 'px';
+                div.style.top = el.y + 'px';
+                div.style.width = el.w + 'px';
+                div.style.height = el.h + 'px';
+                div.style.background = el.bg;
+                div.style.color = el.fg;
+                div.style.fontSize = el.fontSize + 'px';
+                div.style.borderRadius = el.radius + 'px';
+                div.style.fontFamily = fontFamily;
+                div.style.fontWeight = el.type === 'display' ? '600' : '500';
+                div.style.border = '1px solid rgba(255,255,255,0.08)';
+
+                if (el.type === 'display') {
+                    div.textContent = mode === 'preview' ? (calcExpr || '0') : el.label;
+                } else {
+                    div.textContent = el.label;
+                }
+
+                if (mode === 'design') {
+                    const resizeHandle = document.createElement('div');
+                    resizeHandle.className = 'el-resize';
+                    resizeHandle.addEventListener('pointerdown', (e) => startElResize(e, el.id));
+                    div.appendChild(resizeHandle);
+
+                    div.addEventListener('pointerdown', (e) => {
+                        if (e.target === resizeHandle) return;
+                        startElDrag(e, el.id);
+                    });
+                } else {
+                    div.addEventListener('click', () => handlePreviewClick(el));
+                }
+
+                calcCanvas.appendChild(div);
+            }
+        }
+
+        function renderInspector() {
+            const el = state.elements.find(item => item.id === selectedId);
+            const noSel = document.getElementById('no-selection');
+            const fields = document.getElementById('inspector-fields');
+
+            if (!el || mode === 'preview') {
+                document.getElementById('inspector-title').textContent = 'Selected Element';
+                noSel.style.display = 'block';
+                fields.style.display = 'none';
+                return;
+            }
+
+            noSel.style.display = 'none';
+            fields.style.display = 'flex';
+
+            const isDisplay = el.type === 'display';
+            document.getElementById('inspector-title').textContent = isDisplay ? 'Display Block' : 'Button Properties';
+            document.getElementById('field-label').style.display = isDisplay ? 'none' : 'flex';
+            document.getElementById('field-action').style.display = isDisplay ? 'none' : 'flex';
+            document.getElementById('btn-delete-el').style.display = isDisplay ? 'none' : 'block';
+
+            document.getElementById('el-label').value = el.label;
+            if (!isDisplay) document.getElementById('el-action').value = el.action;
+            document.getElementById('el-x').value = el.x;
+            document.getElementById('el-y').value = el.y;
+            document.getElementById('el-w').value = el.w;
+            document.getElementById('el-h').value = el.h;
+            document.getElementById('el-bg').value = el.bg;
+            document.getElementById('el-fg').value = el.fg;
+            document.getElementById('el-font-size').value = el.fontSize;
+            document.getElementById('el-radius').value = el.radius;
+        }
+
+        function selectElement(id) {
+            selectedId = id;
+            renderCanvas();
+            renderInspector();
+        }
+
+        // --- Dragging & Resizing ---
+        function startElDrag(e, id) {
+            e.preventDefault();
+            e.stopPropagation();
+            selectElement(id);
+
+            const el = state.elements.find(item => item.id === id);
+            if (!el) return;
+
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const origX = el.x;
+            const origY = el.y;
+
+            function onMove(ev) {
+                const dx = (ev.clientX - startX) / canvasScale;
+                const dy = (ev.clientY - startY) / canvasScale;
+                el.x = Math.max(0, Math.min(state.width - el.w, snapVal(origX + dx)));
+                el.y = Math.max(0, Math.min(state.height - el.h, snapVal(origY + dy)));
+                renderCanvas();
+                renderInspector();
+            }
+
+            function onUp() {
+                window.removeEventListener('pointermove', onMove);
+                window.removeEventListener('pointerup', onUp);
+                window.removeEventListener('pointercancel', onUp);
+            }
+
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+            window.addEventListener('pointercancel', onUp);
+        }
+
+        function startElResize(e, id) {
+            e.preventDefault();
+            e.stopPropagation();
+            const el = state.elements.find(item => item.id === id);
+            if (!el) return;
+
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const origW = el.w;
+            const origH = el.h;
+
+            function onMove(ev) {
+                const dx = (ev.clientX - startX) / canvasScale;
+                const dy = (ev.clientY - startY) / canvasScale;
+                el.w = Math.max(24, Math.min(state.width - el.x, snapVal(origW + dx)));
+                el.h = Math.max(24, Math.min(state.height - el.y, snapVal(origH + dy)));
+                renderCanvas();
+                renderInspector();
+            }
+
+            function onUp() {
+                window.removeEventListener('pointermove', onMove);
+                window.removeEventListener('pointerup', onUp);
+                window.removeEventListener('pointercancel', onUp);
+            }
+
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+            window.addEventListener('pointercancel', onUp);
+        }
+
+        document.getElementById('canvas-resize-handle').addEventListener('pointerdown', (e) => {
+            if (mode !== 'design') return;
+            e.preventDefault();
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const origW = state.width;
+            const origH = state.height;
+
+            function onMove(ev) {
+                state.width = Math.max(200, Math.min(1200, snapVal(origW + (ev.clientX - startX))));
+                state.height = Math.max(200, Math.min(1200, snapVal(origH + (ev.clientY - startY))));
+                renderCanvas();
+            }
+
+            function onUp() {
+                window.removeEventListener('pointermove', onMove);
+                window.removeEventListener('pointerup', onUp);
+                window.removeEventListener('pointercancel', onUp);
+            }
+
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+            window.addEventListener('pointercancel', onUp);
+        });
+
+        calcCanvas.addEventListener('pointerdown', (e) => {
+            if (e.target === calcCanvas && mode === 'design') {
+                selectElement(null);
+            }
+        });
+
+        // --- Inspector Bindings ---
+        document.getElementById('canvas-w').addEventListener('input', (e) => {
+            state.width = Math.max(200, Math.min(1200, parseInt(e.target.value, 10) || 340));
+            renderCanvas();
+        });
+
+        document.getElementById('canvas-h').addEventListener('input', (e) => {
+            state.height = Math.max(200, Math.min(1200, parseInt(e.target.value, 10) || 480));
+            renderCanvas();
+        });
+
+        document.getElementById('canvas-bg').addEventListener('input', (e) => {
+            state.background = e.target.value;
+            renderCanvas();
+        });
+
+        document.getElementById('snap-grid').addEventListener('change', (e) => {
+            state.snap = e.target.checked;
+            renderCanvas();
+        });
+
+        function applyCanvasPreset(w, h) {
+            state.width = w;
+            state.height = h;
+            renderCanvas();
+        }
+
+        function bindInspectorInput(inputId, prop, isInt = false) {
+            document.getElementById(inputId).addEventListener('input', (e) => {
+                const el = state.elements.find(item => item.id === selectedId);
+                if (!el) return;
+                el[prop] = isInt ? (parseInt(e.target.value, 10) || 0) : e.target.value;
+                renderCanvas();
+            });
+        }
+
+        bindInspectorInput('el-label', 'label');
+        bindInspectorInput('el-action', 'action');
+        bindInspectorInput('el-x', 'x', true);
+        bindInspectorInput('el-y', 'y', true);
+        bindInspectorInput('el-w', 'w', true);
+        bindInspectorInput('el-h', 'h', true);
+        bindInspectorInput('el-bg', 'bg');
+        bindInspectorInput('el-fg', 'fg');
+        bindInspectorInput('el-font-size', 'fontSize', true);
+        bindInspectorInput('el-radius', 'radius', true);
+
+        function addButton() {
+            const id = 'btn_' + Date.now();
+            const newBtn = {
+                id,
+                type: 'button',
+                label: '0',
+                action: '0',
+                x: 16,
+                y: Math.max(16, state.height - 80),
+                w: 70,
+                h: 56,
+                bg: '#232836',
+                fg: '#e6e9f0',
+                fontSize: 20,
+                radius: 10
+            };
+            state.elements.push(newBtn);
+            setMode('design');
+            selectElement(id);
+        }
+
+        function deleteSelected() {
+            if (!selectedId || selectedId === 'display') return;
+            state.elements = state.elements.filter(el => el.id !== selectedId);
+            selectedId = null;
+            renderCanvas();
+            renderInspector();
+        }
+
+        function resetLayout() {
+            state.width = 340;
+            state.height = 480;
+            state.background = '#1a1d26';
+            state.elements = createDefaultElements();
+            selectedId = null;
+            renderCanvas();
+            renderInspector();
+        }
+
+        // --- Mode & Preview Calculator ---
+        function setMode(nextMode) {
+            mode = nextMode;
+            calcExpr = '';
+            document.getElementById('btn-mode-design').classList.toggle('active', mode === 'design');
+            document.getElementById('btn-mode-preview').classList.toggle('active', mode === 'preview');
+            document.getElementById('canvas-resize-handle').style.display = mode === 'design' ? 'block' : 'none';
+            renderCanvas();
+            renderInspector();
+        }
+
+        function evaluateCalcExpression(expr) {
+            const match = expr.trim().match(/^(-?\d+(?:\.\d+)?)\s*([+\-*/%])\s*(-?\d+(?:\.\d+)?)$/);
+            if (!match) return 'Err';
+            const a = parseFloat(match[1]);
+            const op = match[2];
+            const b = parseFloat(match[3]);
+            if ((op === '/' || op === '%') && b === 0) return 'Div/0';
+            let res;
+            if (op === '+') res = a + b;
+            else if (op === '-') res = a - b;
+            else if (op === '*') res = a * b;
+            else if (op === '/') res = a / b;
+            else if (op === '%') res = a % b;
+            return Number.isInteger(res) ? String(res) : String(parseFloat(res.toFixed(8)));
+        }
+
+        async function evaluateCalcViaApi(expr) {
+            const match = expr.trim().match(/^(-?\d+(?:\.\d+)?)\s*([+\-*/%])\s*(-?\d+(?:\.\d+)?)$/);
+            if (!match) return 'Err';
+            const opMap = { '+': 'add', '-': 'sub', '*': 'mul', '/': 'div', '%': 'mod' };
+            const a = match[1];
+            const op = opMap[match[2]];
+            const b = match[3];
+
+            if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                try {
+                    const resp = await fetch('/api/calculate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ op, a: Number(a), b: Number(b) })
+                    });
+                    const data = await resp.json();
+                    if (resp.ok && data.result !== undefined) {
+                        const res = Number(data.result);
+                        return Number.isInteger(res) ? String(res) : String(parseFloat(res.toFixed(8)));
+                    }
+                    if (data && data.error) {
+                        return data.error.toLowerCase().includes('zero') ? 'Div/0' : 'Err';
+                    }
+                } catch (_) {
+                    // Fall back to local evaluation if server is unreachable
+                }
+            }
+            return evaluateCalcExpression(expr);
+        }
+
+        async function handlePreviewClick(el) {
+            if (el.type === 'display') return;
+            const act = el.action;
+            if (act === 'C') {
+                calcExpr = '';
+            } else if (act === 'DEL') {
+                calcExpr = calcExpr.slice(0, -1);
+            } else if (act === '=') {
+                if (calcExpr) {
+                    calcExpr = await evaluateCalcViaApi(calcExpr);
+                }
+            } else if (['+', '-', '*', '/', '%'].includes(act)) {
+                if (calcExpr && !/[+\-*/%]\s*$/.test(calcExpr)) {
+                    calcExpr += ' ' + act + ' ';
+                }
+            } else {
+                if (calcExpr === 'Err' || calcExpr === 'Div/0') calcExpr = '';
+                calcExpr += act;
+            }
+            renderCanvas();
+        }
+
+        // --- TTF Font Loading ---
+        const ttfInput = document.getElementById('ttf-input');
+        const ttfDropzone = document.getElementById('ttf-dropzone');
+
+        async function loadFontFile(file) {
+            if (!file) return;
+            const buf = await file.arrayBuffer();
+            const bytes = new Uint8Array(buf);
+            const family = 'UltraCalcFont_' + Date.now();
+            try {
+                const face = new FontFace(family, buf);
+                await face.load();
+                document.fonts.add(face);
+                customFont = {
+                    filename: file.name.replace(/[^a-zA-Z0-9._-]/g, '_'),
+                    bytes,
+                    family
+                };
+                document.getElementById('ttf-info').textContent = `Loaded: ${customFont.filename} (${(bytes.length / 1024).toFixed(1)} KB)`;
+                document.getElementById('ttf-info').className = 'ttf-status';
+                document.getElementById('btn-clear-ttf').style.display = 'block';
+                renderCanvas();
+            } catch (err) {
+                alert('Failed to load font file: ' + err.message);
+            }
+        }
+
+        ttfInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) loadFontFile(e.target.files[0]);
+        });
+
+        ttfDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            ttfDropzone.classList.add('dragover');
+        });
+        ttfDropzone.addEventListener('dragleave', () => ttfDropzone.classList.remove('dragover'));
+        ttfDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            ttfDropzone.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) loadFontFile(e.dataTransfer.files[0]);
+        });
+
+        function clearTtf() {
+            customFont = null;
+            ttfInput.value = '';
+            document.getElementById('ttf-info').textContent = 'Using default system font';
+            document.getElementById('ttf-info').className = 'hint';
+            document.getElementById('btn-clear-ttf').style.display = 'none';
+            renderCanvas();
+        }
+
+        // --- Spec Generation ---
+        function buildSpecs() {
+            const name = (document.getElementById('ext-name').value.trim() || 'ucalc-custom-gui');
+            const version = (document.getElementById('ext-version').value.trim() || '1.0.0');
+            const description = (document.getElementById('ext-desc').value.trim() || 'Custom GUI frontend for UltraCalc');
+            const main = document.getElementById('ext-main').value;
+
+            const manifest = {
+                name,
+                version,
+                description,
+                main,
+                exttype: 'frontend',
+                ext_type: 'frontend',
+                layout: 'layout/calc.json'
+            };
+
+            const displayEl = state.elements.find(e => e.type === 'display');
+            const buttons = state.elements.filter(e => e.type === 'button').map(b => ({
+                id: b.id,
+                label: b.label,
+                action: b.action,
+                x: b.x,
+                y: b.y,
+                width: b.w,
+                height: b.h,
+                bg: b.bg,
+                fg: b.fg,
+                fontSize: b.fontSize,
+                borderRadius: b.radius
+            }));
+
+            const layout = {
+                window: {
+                    title: name,
+                    width: state.width,
+                    height: state.height,
+                    background: state.background
+                },
+                font: customFont ? `assets/${customFont.filename}` : null,
+                display: displayEl ? {
+                    x: displayEl.x,
+                    y: displayEl.y,
+                    width: displayEl.w,
+                    height: displayEl.h,
+                    bg: displayEl.bg,
+                    fg: displayEl.fg,
+                    fontSize: displayEl.fontSize,
+                    borderRadius: displayEl.radius
+                } : null,
+                buttons
+            };
+
+            return { manifest, layout };
+        }
+
+        function generatePythonGui() {
+            return `#!/usr/bin/env python3
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+
+EXT_DIR = os.path.dirname(os.path.abspath(__file__))
+LAYOUT_PATH = os.path.join(EXT_DIR, "layout", "calc.json")
+
+with open(LAYOUT_PATH, "r", encoding="utf-8") as f:
+    LAYOUT = json.load(f)
+
+OP_MAP = {"+": "add", "-": "sub", "*": "mul", "/": "div", "%": "mod"}
+
+def find_ultracalc_cli():
+    for candidate in ("ultracalc-cli", "ultracalcbase", "ultracalc"):
+        found = shutil.which(candidate)
+        if found:
+            return found
+        local = os.path.join(EXT_DIR, candidate)
+        if os.path.isfile(local) and os.access(local, os.X_OK):
+            return local
+    return None
+
+def evaluate_expr(expr):
+    m = re.match(r"^\\s*(-?\\d+(?:\\.\\d+)?)\\s*([+\\-*/%])\\s*(-?\\d+(?:\\.\\d+)?)\\s*$", expr)
+    if not m:
+        return "Err"
+    a_str, op, b_str = m.group(1), m.group(2), m.group(3)
+    cli = find_ultracalc_cli()
+    if cli and op in OP_MAP:
+        try:
+            proc = subprocess.run([cli, "--calcapi", OP_MAP[op], a_str, b_str], capture_output=True, text=True, timeout=3)
+            if proc.returncode == 0 and proc.stdout.strip():
+                return proc.stdout.strip()
+        except Exception:
+            pass
+    a, b = float(a_str), float(b_str)
+    if op in ("/", "%") and b == 0:
+        return "Div/0"
+    res = {"+" : a + b, "-": a - b, "*": a * b, "/": a / b, "%": a % b}[op]
+    return str(int(res)) if res.is_integer() else f"{res:.8g}"
+
+def run_pyqt6():
+    from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLineEdit
+    from PyQt6.QtGui import QFontDatabase, QFont
+    from PyQt6.QtCore import Qt
+
+    app = QApplication(sys.argv)
+    font_family = None
+    if LAYOUT.get("font"):
+        font_path = os.path.join(EXT_DIR, LAYOUT["font"])
+        if os.path.isfile(font_path):
+            fid = QFontDatabase.addApplicationFont(font_path)
+            families = QFontDatabase.applicationFontFamilies(fid)
+            if families:
+                font_family = families[0]
+
+    win_cfg = LAYOUT["window"]
+    window = QMainWindow()
+    window.setWindowTitle(win_cfg.get("title", "UltraCalc"))
+    window.setFixedSize(win_cfg["width"], win_cfg["height"])
+
+    central = QWidget()
+    central.setStyleSheet(f"background-color: {win_cfg['background']};")
+    window.setCentralWidget(central)
+
+    state = {"expr": ""}
+    disp_cfg = LAYOUT.get("display")
+    display = None
+    if disp_cfg:
+        display = QLineEdit("0", central)
+        display.setReadOnly(True)
+        display.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        display.setGeometry(disp_cfg["x"], disp_cfg["y"], disp_cfg["width"], disp_cfg["height"])
+        if font_family:
+            display.setFont(QFont(font_family, disp_cfg["fontSize"]))
+        display.setStyleSheet(
+            f"background:{disp_cfg['bg']};color:{disp_cfg['fg']};"
+            f"font-size:{disp_cfg['fontSize']}px;border-radius:{disp_cfg['borderRadius']}px;"
+            f"padding:0 12px;border:1px solid rgba(255,255,255,0.1);"
+        )
+
+    def on_press(action):
+        if action == "C":
+            state["expr"] = ""
+        elif action == "DEL":
+            state["expr"] = state["expr"][:-1]
+        elif action == "=":
+            if state["expr"]:
+                state["expr"] = evaluate_expr(state["expr"])
+        elif action in OP_MAP:
+            if state["expr"] and not re.search(r"[+\\-*/%]\\s*$", state["expr"]):
+                state["expr"] += f" {action} "
+        else:
+            if state["expr"] in ("Err", "Div/0"):
+                state["expr"] = ""
+            state["expr"] += action
+        if display:
+            display.setText(state["expr"] or "0")
+
+    for b in LAYOUT.get("buttons", []):
+        btn = QPushButton(b["label"], central)
+        btn.setGeometry(b["x"], b["y"], b["width"], b["height"])
+        if font_family:
+            btn.setFont(QFont(font_family, b["fontSize"]))
+        btn.setStyleSheet(
+            f"QPushButton{{background:{b['bg']};color:{b['fg']};"
+            f"font-size:{b['fontSize']}px;border-radius:{b['borderRadius']}px;"
+            f"border:1px solid rgba(255,255,255,0.1);}}"
+        )
+        btn.clicked.connect(lambda _checked=False, act=b["action"]: on_press(act))
+
+    window.show()
+    sys.exit(app.exec())
+
+def run_tkinter():
+    import tkinter as tk
+    win_cfg = LAYOUT["window"]
+    root = tk.Tk()
+    root.title(win_cfg.get("title", "UltraCalc"))
+    root.geometry(f"{win_cfg['width']}x{win_cfg['height']}")
+    root.resizable(False, False)
+    root.configure(bg=win_cfg["background"])
+
+    state = {"expr": ""}
+    disp_var = tk.StringVar(value="0")
+    disp_cfg = LAYOUT.get("display")
+    if disp_cfg:
+        lbl = tk.Label(
+            root, textvariable=disp_var, anchor="e",
+            bg=disp_cfg["bg"], fg=disp_cfg["fg"],
+            font=("Sans", disp_cfg["fontSize"]), padx=12
+        )
+        lbl.place(x=disp_cfg["x"], y=disp_cfg["y"], width=disp_cfg["width"], height=disp_cfg["height"])
+
+    def on_press(action):
+        if action == "C":
+            state["expr"] = ""
+        elif action == "DEL":
+            state["expr"] = state["expr"][:-1]
+        elif action == "=":
+            if state["expr"]:
+                state["expr"] = evaluate_expr(state["expr"])
+        elif action in OP_MAP:
+            if state["expr"] and not re.search(r"[+\\-*/%]\\s*$", state["expr"]):
+                state["expr"] += f" {action} "
+        else:
+            if state["expr"] in ("Err", "Div/0"):
+                state["expr"] = ""
+            state["expr"] += action
+        disp_var.set(state["expr"] or "0")
+
+    for b in LAYOUT.get("buttons", []):
+        btn = tk.Button(
+            root, text=b["label"], bg=b["bg"], fg=b["fg"],
+            font=("Sans", b["fontSize"]), bd=0,
+            command=lambda act=b["action"]: on_press(act)
+        )
+        btn.place(x=b["x"], y=b["y"], width=b["width"], height=b["height"])
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    try:
+        run_pyqt6()
+    except ImportError:
+        run_tkinter()
+`;
+        }
+
+        function generateHtmlGui(layout) {
+            const fontCss = layout.font
+                ? `@font-face { font-family: 'ExtCustomFont'; src: url('${layout.font}'); }\n        body, .calc-el { font-family: 'ExtCustomFont', sans-serif; }`
+                : `body, .calc-el { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }`;
+
+            const disp = layout.display;
+            const dispHtml = disp
+                ? `<div id="display" class="calc-el" style="left:${disp.x}px;top:${disp.y}px;width:${disp.width}px;height:${disp.height}px;background:${disp.bg};color:${disp.fg};font-size:${disp.fontSize}px;border-radius:${disp.borderRadius}px;justify-content:flex-end;padding:0 14px;">0</div>`
+                : '';
+
+            const btnsHtml = layout.buttons.map(b =>
+                `<button class="calc-el calc-btn" data-action="${b.action.replace(/"/g, '&quot;')}" style="left:${b.x}px;top:${b.y}px;width:${b.width}px;height:${b.height}px;background:${b.bg};color:${b.fg};font-size:${b.fontSize}px;border-radius:${b.borderRadius}px;">${b.label.replace(/</g, '&lt;')}</button>`
+            ).join('\n        ');
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${layout.window.title}</title>
+    <style>
+        ${fontCss}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0f1117; }
+        #calc-root { position: relative; width: ${layout.window.width}px; height: ${layout.window.height}px; background: ${layout.window.background}; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .calc-el { position: absolute; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.08); }
+        .calc-btn { cursor: pointer; }
+        .calc-btn:active { filter: brightness(1.15); }
+    </style>
+</head>
+<body>
+    <div id="calc-root">
+        ${dispHtml}
+        ${btnsHtml}
+    </div>
+
+    <script>
+        let expr = '';
+        const disp = document.getElementById('display');
+        const opMap = { '+': 'add', '-': 'sub', '*': 'mul', '/': 'div', '%': 'mod' };
+
+        async function evaluateExpr(s) {
+            const m = s.trim().match(/^(-?\\d+(?:\\.\\d+)?)\\s*([+\\-*/%])\\s*(-?\\d+(?:\\.\\d+)?)$/);
+            if (!m) return 'Err';
+            const [, a, op, b] = m;
+            try {
+                const res = await fetch('/api/calculate?op=' + encodeURIComponent(opMap[op]) + '&a=' + encodeURIComponent(a) + '&b=' + encodeURIComponent(b));
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.result !== undefined) return String(data.result);
+                }
+            } catch (_) {}
+            const x = parseFloat(a), y = parseFloat(b);
+            if ((op === '/' || op === '%') && y === 0) return 'Div/0';
+            const val = op === '+' ? x + y : op === '-' ? x - y : op === '*' ? x * y : op === '/' ? x / y : x % y;
+            return Number.isInteger(val) ? String(val) : String(parseFloat(val.toFixed(8)));
+        }
+
+        document.querySelectorAll('.calc-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const act = btn.dataset.action;
+                if (act === 'C') expr = '';
+                else if (act === 'DEL') expr = expr.slice(0, -1);
+                else if (act === '=') { if (expr) expr = await evaluateExpr(expr); }
+                else if (opMap[act]) { if (expr && !/[+\\-*/%]\\s*$/.test(expr)) expr += ' ' + act + ' '; }
+                else { if (expr === 'Err' || expr === 'Div/0') expr = ''; expr += act; }
+                if (disp) disp.textContent = expr || '0';
+            });
+        });
+    <\/script>
+</body>
+</html>`;
+        }
+
+        // --- Minimal Pure-JS ZIP Builder (Store method + CRC32) ---
+        const CRC_TABLE = (() => {
+            const table = new Uint32Array(256);
+            for (let i = 0; i < 256; i++) {
+                let c = i;
+                for (let k = 0; k < 8; k++) {
+                    c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+                }
+                table[i] = c >>> 0;
+            }
+            return table;
+        })();
+
+        function crc32(bytes) {
+            let c = 0xffffffff;
+            for (let i = 0; i < bytes.length; i++) {
+                c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+            }
+            return (c ^ 0xffffffff) >>> 0;
+        }
+
+        function buildZip(entries) {
+            const encoder = new TextEncoder();
+            const localParts = [];
+            const centralParts = [];
+            let offset = 0;
+
+            for (const entry of entries) {
+                const nameBytes = encoder.encode(entry.name);
+                const data = entry.data instanceof Uint8Array ? entry.data : encoder.encode(entry.data);
+                const crc = crc32(data);
+                const size = data.length;
+
+                const local = new Uint8Array(30 + nameBytes.length);
+                const lv = new DataView(local.buffer);
+                lv.setUint32(0, 0x04034b50, true);
+                lv.setUint16(4, 20, true);
+                lv.setUint16(6, 0x0800, true); // UTF-8
+                lv.setUint16(8, 0, true); // Store
+                lv.setUint16(10, 0, true);
+                lv.setUint16(12, 0, true);
+                lv.setUint32(14, crc, true);
+                lv.setUint32(18, size, true);
+                lv.setUint32(22, size, true);
+                lv.setUint16(26, nameBytes.length, true);
+                lv.setUint16(28, 0, true);
+                local.set(nameBytes, 30);
+
+                localParts.push(local, data);
+
+                const central = new Uint8Array(46 + nameBytes.length);
+                const cv = new DataView(central.buffer);
+                cv.setUint32(0, 0x02014b50, true);
+                cv.setUint16(4, 20, true);
+                cv.setUint16(6, 20, true);
+                cv.setUint16(8, 0x0800, true);
+                cv.setUint16(10, 0, true);
+                cv.setUint16(12, 0, true);
+                cv.setUint16(14, 0, true);
+                cv.setUint32(16, crc, true);
+                cv.setUint32(20, size, true);
+                cv.setUint32(24, size, true);
+                cv.setUint16(28, nameBytes.length, true);
+                cv.setUint16(30, 0, true);
+                cv.setUint16(32, 0, true);
+                cv.setUint16(34, 0, true);
+                cv.setUint16(36, 0, true);
+                cv.setUint32(38, 0, true);
+                cv.setUint32(42, offset, true);
+                central.set(nameBytes, 46);
+
+                centralParts.push(central);
+                offset += local.length + size;
+            }
+
+            const centralSize = centralParts.reduce((acc, p) => acc + p.length, 0);
+            const eocd = new Uint8Array(22);
+            const ev = new DataView(eocd.buffer);
+            ev.setUint32(0, 0x06054b50, true);
+            ev.setUint16(4, 0, true);
+            ev.setUint16(6, 0, true);
+            ev.setUint16(8, entries.length, true);
+            ev.setUint16(10, entries.length, true);
+            ev.setUint32(12, centralSize, true);
+            ev.setUint32(16, offset, true);
+            ev.setUint16(20, 0, true);
+
+            return new Blob([...localParts, ...centralParts, eocd], { type: 'application/zip' });
+        }
+
+        function packageExtension() {
+            const { manifest, layout } = buildSpecs();
+            const entries = [
+                { name: 'manifest.json', data: JSON.stringify(manifest, null, 2) },
+                { name: 'layout/calc.json', data: JSON.stringify(layout, null, 2) },
+                { name: 'gui.py', data: generatePythonGui() },
+                { name: 'index.html', data: generateHtmlGui(layout) }
+            ];
+
+            if (customFont) {
+                entries.push({ name: `assets/${customFont.filename}`, data: customFont.bytes });
+            }
+
+            const blob = buildZip(entries);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const safeName = manifest.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            a.href = url;
+            a.download = `${safeName}.uce`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        function openSpecModal() {
+            const specs = buildSpecs();
+            document.getElementById('spec-output').textContent = JSON.stringify(specs, null, 2);
+            document.getElementById('spec-modal').classList.add('open');
+        }
+
+        function closeSpecModal() {
+            document.getElementById('spec-modal').classList.remove('open');
+        }
+
+        // --- Responsive Mobile Navigation & Canvas Scaling ---
+        let canvasScale = 1;
+
+        function switchMobileTab(tab) {
+            const left = document.querySelector('.sidebar-left');
+            const stage = document.querySelector('.stage');
+            const right = document.querySelector('.sidebar-right');
+            [left, stage, right].forEach(el => el && el.classList.remove('mobile-active'));
+            document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
+
+            if (tab === 'settings' && left) left.classList.add('mobile-active');
+            else if (tab === 'inspector' && right) right.classList.add('mobile-active');
+            else if (stage) stage.classList.add('mobile-active');
+
+            const navBtn = document.getElementById('mnav-' + tab);
+            if (navBtn) navBtn.classList.add('active');
+            if (tab === 'canvas') updateCanvasScale();
+        }
+
+        function updateCanvasScale() {
+            const stage = document.querySelector('.stage');
+            const wrapper = document.getElementById('canvas-wrapper');
+            if (!stage || !wrapper) return;
+            if (window.innerWidth > 820) {
+                canvasScale = 1;
+                wrapper.style.transform = '';
+                wrapper.style.marginBottom = '';
+                return;
+            }
+            const availW = Math.max(200, stage.clientWidth - 24);
+            const availH = Math.max(200, stage.clientHeight - 100);
+            canvasScale = Math.min(1, availW / state.width, availH / state.height);
+            wrapper.style.transform = `scale(${canvasScale})`;
+            wrapper.style.transformOrigin = 'top center';
+            wrapper.style.marginBottom = `${(state.height * canvasScale) - state.height}px`;
+        }
+
+        window.addEventListener('resize', updateCanvasScale);
+
+        const _origRenderCanvas = renderCanvas;
+        renderCanvas = function() {
+            _origRenderCanvas();
+            updateCanvasScale();
+        };
+
+        const _origRenderInspector = renderInspector;
+        renderInspector = function() {
+            _origRenderInspector();
+            const pill = document.getElementById('edit-selected-pill');
+            const el = state.elements.find(item => item.id === selectedId);
+            if (pill) {
+                if (el && mode === 'design' && window.innerWidth <= 820) {
+                    pill.style.display = 'inline-flex';
+                    pill.textContent = el.type === 'display' ? 'Display Block' : `Edit "${el.label || el.id}"`;
+                } else {
+                    pill.style.display = 'none';
+                }
+            }
+        };
+
+        // --- Init ---
+        state.elements = createDefaultElements();
+        renderCanvas();
+        renderInspector();
+    </script>
+</body>
+</html>

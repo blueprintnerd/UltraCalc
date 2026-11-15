@@ -6,10 +6,10 @@ Your **simple TUI calculator** is ready! Built with FTXUI and your math function
 
 ```bash
 # Build
-cd build && cmake --build .
+./build.sh
 
 # Run
-./ultra_calc
+./bin/ultracalc-tui
 ```
 
 **Press Q to quit**
@@ -233,20 +233,15 @@ FTXUI automatically supports keyboard navigation. Use:
 
 ---
 
+## Roadmap
+
+Planned future additions (not yet exposed in `math.hpp` or `ultracalc-tui`):
+- `pow`, `sqrt`, and trigonometric operations (`sin`, `cos`)
+- Memory functions (`MS`, `MR`, `MC`, `M+`) and calculation history
+- Decimal input button
+
 ## Next Steps
 
-1. **Try it:** `./build/ultra_calc`
+1. **Try it:** `./bin/ultracalc-tui`
 2. **Customize:** Change the title, colors, or layout
 3. **Extend:** Add memory functions, history, or scientific operations
-4. **Improve:** Better error handling, decimal support
-
----
-
-## Need Help?
-
-Ask me to:
-- "Add memory functions to the calculator"
-- "Make the display show history"
-- "Add scientific operations (sin, cos, sqrt)"
-- "Fix division by zero"
-- "Add keyboard shortcuts"

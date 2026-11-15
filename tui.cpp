@@ -64,45 +64,65 @@ int main() {
         display += "9";
     });
     
+    auto try_parse_display = [&]() -> bool {
+        try {
+            stored_value = std::stof(display);
+            return true;
+        } catch (...) {
+            display = "Error";
+            operation = "";
+            new_input = true;
+            return false;
+        }
+    };
+
     // Operation buttons
     auto btn_add = button("+", [&] {
-        stored_value = std::stof(display);
-        operation = "add";
-        new_input = true;
+        if (try_parse_display()) {
+            operation = "add";
+            new_input = true;
+        }
     });
     
     auto btn_sub = button("-", [&] {
-        stored_value = std::stof(display);
-        operation = "sub";
-        new_input = true;
+        if (try_parse_display()) {
+            operation = "sub";
+            new_input = true;
+        }
     });
     
     auto btn_mul = button("*", [&] {
-        stored_value = std::stof(display);
-        operation = "mul";
-        new_input = true;
+        if (try_parse_display()) {
+            operation = "mul";
+            new_input = true;
+        }
     });
     
     auto btn_div = button("/", [&] {
-        stored_value = std::stof(display);
-        operation = "div";
-        new_input = true;
+        if (try_parse_display()) {
+            operation = "div";
+            new_input = true;
+        }
     });
     
     auto btn_equals = button("=", [&] {
-        float current = std::stof(display);
-        float result = 0;
-        
-        if (operation == "add") result = add(stored_value, current);
-        else if (operation == "sub") result = subtract(stored_value, current);
-        else if (operation == "mul") result = multiplier(stored_value, current);
-        else if (operation == "div") result = divider(stored_value, current, 0);
-        
-        display = std::to_string(result);
-        // Remove trailing zeros
-        display.erase(display.find_last_not_of('0') + 1, std::string::npos);
-        if (display.back() == '.') display.pop_back();
-        
+        try {
+            float current = std::stof(display);
+            float result = 0;
+
+            if (operation == "add") result = static_cast<float>(add(static_cast<int>(stored_value), static_cast<int>(current)));
+            else if (operation == "sub") result = static_cast<float>(subtract(static_cast<int>(stored_value), static_cast<int>(current)));
+            else if (operation == "mul") result = static_cast<float>(multiplier(static_cast<int>(stored_value), static_cast<int>(current)));
+            else if (operation == "div") result = divider(static_cast<int>(stored_value), static_cast<int>(current), 0);
+            else return;
+
+            display = std::to_string(result);
+            // Remove trailing zeros
+            display.erase(display.find_last_not_of('0') + 1, std::string::npos);
+            if (!display.empty() && display.back() == '.') display.pop_back();
+        } catch (...) {
+            display = "Div/0";
+        }
         operation = "";
         new_input = true;
     });

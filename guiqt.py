@@ -1,206 +1,750 @@
-#!/usr/bin/env python3
-import os
-import shutil
-import subprocess
-import sys
-from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout,
-    QLineEdit, QLCDNumber, QPushButton, QHBoxLayout, QLabel
-)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraCalc Layout Editor</title>
+    <style>
+        :root {
+            --bg-app: #eceef1;
+            --bg-panel: #ffffff;
+            --bg-subtle: #f5f6f8;
+            --bg-input: #ffffff;
+            --border: #dcdfe5;
+            --border-strong: #c2c7d0;
+            --text-main: #181a1f;
+            --text-muted: #5e6573;
+            --accent: #0969da;
+            --accent-subtle: rgba(9, 105, 218, 0.1);
+            --ink-btn: #181a1f;
+            --ink-btn-hover: #2c303a;
+            --danger: #c62828;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-def find_ultracalc_cli() -> str | None:
-    """Resolve the ultracalc-cli binary dynamically."""
-    app_dir = os.path.dirname(os.path.abspath(__file__))
-    candidates = [
-        os.path.join(app_dir, "ultracalc-cli"),
-        os.path.join(app_dir, "bin", "ultracalc-cli"),
-        os.path.join(os.path.dirname(app_dir), "bin", "ultracalc-cli"),
-        os.path.join(app_dir, "build", "ultracalc-cli"),
-    ]
-    for path in candidates:
-        if os.path.isfile(path) and os.access(path, os.X_OK):
-            return path
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-app);
+            color: var(--text-main);
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-size: 13px;
+            line-height: 1.4;
+        }
 
-    return shutil.which("ultracalc-cli")
+        .topbar {
+            height: 46px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            flex-shrink: 0;
+            gap: 12px;
+        }
 
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
 
-class CalculatorApp(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("UltraCalc")
-        self.setFixedSize(420, 320)
+        .brand {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(12)
+        .mode-tabs {
+            display: inline-flex;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            padding: 2px;
+            gap: 2px;
+        }
 
-        self.lcd = QLCDNumber()
-        self.lcd.setDigitCount(12)
-        self.lcd.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
-        self.lcd.setFixedHeight(60)
+        .mode-tabs button {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+        }
 
-        self.input_field = QLineEdit()
-        self.input_field.setPlaceholderText("Enter an equation (e.g. 12 + 5 or add 12, 5)")
-        self.input_field.returnPressed.connect(self.calculate)
+        .mode-tabs button:hover {
+            background: rgba(0, 0, 0, 0.04);
+            color: var(--text-main);
+        }
 
-        button_layout = QHBoxLayout()
-        button_layout.setSpacing(8)
+        .mode-tabs button.active {
+            background: var(--bg-panel);
+            color: var(--text-main);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
 
-        self.btn_add = QPushButton("+")
-        self.btn_sub = QPushButton("-")
-        self.btn_mul = QPushButton("*")
-        self.btn_div = QPushButton("/")
-        self.btn_mod = QPushButton("%")
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-        for btn in [self.btn_add, self.btn_sub, self.btn_mul, self.btn_div, self.btn_mod]:
-            btn.setFixedSize(48, 48)
-            btn.clicked.connect(self.on_operator_clicked)
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: 1px solid var(--border-strong);
+            background: var(--bg-panel);
+            color: var(--text-main);
+            padding: 5px 11px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        self.btn_equals = QPushButton("=")
-        self.btn_equals.setFixedSize(48, 48)
-        self.btn_equals.clicked.connect(self.calculate)
+        button:hover {
+            background: var(--bg-subtle);
+            border-color: #9aa1ad;
+        }
 
-        self.btn_clear = QPushButton("C")
-        self.btn_clear.setFixedSize(48, 48)
-        self.btn_clear.clicked.connect(self.clear_input)
+        button:active {
+            background: #e8eaee;
+        }
 
-        button_layout.addWidget(self.btn_add)
-        button_layout.addWidget(self.btn_sub)
-        button_layout.addWidget(self.btn_mul)
-        button_layout.addWidget(self.btn_div)
-        button_layout.addWidget(self.btn_mod)
-        button_layout.addWidget(self.btn_equals)
-        button_layout.addWidget(self.btn_clear)
+        button.success {
+            background: var(--ink-btn);
+            border-color: var(--ink-btn);
+            color: #ffffff;
+            font-weight: 600;
+        }
 
-        self.status_label = QLabel("Ready")
+        button.success:hover {
+            background: var(--ink-btn-hover);
+            border-color: var(--ink-btn-hover);
+        }
 
-        layout.addWidget(self.lcd)
-        layout.addWidget(self.input_field)
-        layout.addLayout(button_layout)
-        layout.addWidget(self.status_label)
+        button.danger {
+            background: var(--bg-panel);
+            border-color: #e5b4b4;
+            color: var(--danger);
+        }
 
-        self.create_menu_bar()
+        button.danger:hover {
+            background: #fef2f2;
+            border-color: var(--danger);
+        }
 
-    def create_menu_bar(self):
-        menubar = self.menuBar()
-        file_menu = menubar.addMenu("File")
+        /* Main Workspace */
+        .workspace {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
 
-        exit_action = file_menu.addAction("Exit")
-        exit_action.triggered.connect(self.close)
+        .sidebar-left {
+            width: 258px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex-shrink: 0;
+        }
 
-    def on_operator_clicked(self):
-        sender = self.sender()
-        if sender:
-            op = sender.text()
-            current_text = self.input_field.text()
-            self.input_field.setText(current_text + " " + op + " ")
-            self.input_field.setFocus()
+        .stage {
+            flex: 1;
+            background: var(--bg-app);
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+            padding: 28px;
+            position: relative;
+        }
 
-    def clear_input(self):
-        self.input_field.clear()
-        self.lcd.display(0)
-        self.status_label.setText("Ready")
-        self.input_field.setFocus()
+        .stage-viewport {
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    def calculate(self):
-        equation = self.input_field.text().strip()
-        if not equation:
-            self.status_label.setText("Please enter an equation")
-            return
+        #canvas-stage-frame {
+            position: relative;
+            flex-shrink: 0;
+        }
 
-        try:
-            result = self.run_ultracalc(equation)
-            if result is not None:
-                if result.is_integer():
-                    formatted = str(int(result))
-                    self.lcd.display(int(result))
-                else:
-                    formatted = f"{result:g}"
-                    self.lcd.display(result)
-                self.status_label.setText(f"Result: {formatted}")
-        except Exception as e:
-            self.status_label.setText(f"Error: {e}")
+        #canvas-wrapper {
+            position: relative;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.14);
+            border-radius: 10px;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
 
-    def parse_equation(self, equation: str) -> tuple[str, str, str]:
-        equation_lower = equation.lower()
+        #calc-canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
 
-        if equation_lower.startswith("add "):
-            parts = equation[4:].split(",")
-            if len(parts) == 2:
-                return "add", parts[0].strip(), parts[1].strip()
-        elif equation_lower.startswith("sub "):
-            if " from " in equation_lower:
-                idx = equation_lower.find(" from ")
-                num1 = equation[4:idx].strip()
-                num2 = equation[idx + 6:].strip()
-                return "sub", num2, num1
-            parts = equation[4:].split(",")
-            if len(parts) == 2:
-                return "sub", parts[0].strip(), parts[1].strip()
-        elif equation_lower.startswith("mul "):
-            parts = equation[4:].split(",")
-            if len(parts) == 2:
-                return "mul", parts[0].strip(), parts[1].strip()
-        elif equation_lower.startswith("div "):
-            if " by " in equation_lower:
-                idx = equation_lower.find(" by ")
-                return "div", equation[4:idx].strip(), equation[idx + 4:].strip()
-            parts = equation[4:].split(",")
-            if len(parts) == 2:
-                return "div", parts[0].strip(), parts[1].strip()
-        elif equation_lower.startswith("mod "):
-            if " by " in equation_lower:
-                idx = equation_lower.find(" by ")
-                return "mod", equation[4:idx].strip(), equation[idx + 4:].strip()
-            parts = equation[4:].split(",")
-            if len(parts) == 2:
-                return "mod", parts[0].strip(), parts[1].strip()
-        else:
-            op_map = {
-                "+": "add",
-                "-": "sub",
-                "*": "mul",
-                "x": "mul",
-                "/": "div",
-                "÷": "div",
-                "%": "mod",
+        #calc-canvas.show-grid {
+            background-image:
+                linear-gradient(to right, rgba(128, 128, 128, 0.12) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(128, 128, 128, 0.12) 1px, transparent 1px);
+            background-size: 8px 8px;
+        }
+
+        .canvas-resize-handle {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 18px;
+            height: 18px;
+            cursor: nwse-resize;
+            touch-action: none;
+            z-index: 50;
+            background: linear-gradient(135deg,
+                transparent 46%,
+                rgba(100, 108, 120, 0.55) 46%,
+                rgba(100, 108, 120, 0.55) 56%,
+                transparent 56%,
+                transparent 70%,
+                rgba(100, 108, 120, 0.55) 70%,
+                rgba(100, 108, 120, 0.55) 80%,
+                transparent 80%);
+        }
+
+        .canvas-dim-badge {
+            position: absolute;
+            bottom: 10px;
+            left: 12px;
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        /* Draggable Elements on Canvas */
+        .ui-element {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+        }
+
+        .ui-element.preview-mode {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .ui-element.preview-mode:hover {
+            filter: brightness(0.96);
+        }
+
+        .ui-element.preview-mode:active {
+            filter: brightness(0.9);
+            transform: translateY(0.5px);
+        }
+
+        .ui-element.selected {
+            outline: 2px solid var(--accent);
+            outline-offset: 1px;
+            z-index: 20;
+        }
+
+        .ui-element .el-resize {
+            position: absolute;
+            right: -5px;
+            bottom: -5px;
+            width: 10px;
+            height: 10px;
+            background: #ffffff;
+            border: 1.5px solid var(--accent);
+            border-radius: 2px;
+            cursor: nwse-resize;
+            touch-action: none;
+            display: none;
+        }
+
+        .ui-element.selected .el-resize {
+            display: block;
+        }
+
+        .ui-display {
+            justify-content: flex-end;
+            padding: 0 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Right Sidebar: Inspector */
+        .sidebar-right {
+            width: 276px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .section-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            height: 30px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-strong);
+            color: var(--text-main);
+            padding: 0 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: inherit;
+        }
+
+        input[type="number"] {
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .color-field {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            padding: 3px 7px 3px 3px;
+            height: 30px;
+        }
+
+        .color-field input[type="color"] {
+            width: 24px;
+            height: 22px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .color-hex {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-main);
+            user-select: all;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-subtle);
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .preset-grid button {
+            font-size: 11px;
+            padding: 4px;
+        }
+
+        .ttf-dropzone {
+            border: 1px dashed var(--border-strong);
+            border-radius: 4px;
+            padding: 11px 10px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            background: var(--bg-subtle);
+        }
+
+        .ttf-dropzone:hover, .ttf-dropzone.dragover {
+            border-color: var(--accent);
+            color: var(--text-main);
+            background: var(--bg-panel);
+        }
+
+        .ttf-status {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #156d3c;
+            word-break: break-all;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .hint code {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            padding: 0 4px;
+            border-radius: 3px;
+            color: var(--text-main);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 18, 24, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            width: 640px;
+            max-width: 92vw;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+        }
+
+        .modal-header {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-subtle);
+        }
+
+        .modal-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .modal-body {
+            padding: 14px;
+            overflow: auto;
+        }
+
+        pre {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.45;
+            overflow-x: auto;
+            color: var(--text-main);
+        }
+
+        .mobile-nav {
+            display: none;
+        }
+
+        .mobile-selection-bar {
+            display: none;
+        }
+
+        #btn-mobile-back {
+            display: none;
+        }
+
+        @media (max-width: 820px) {
+            .topbar {
+                height: auto;
+                flex-direction: column;
+                align-items: stretch;
+                padding: 8px 10px;
+                gap: 6px;
             }
-            for i in range(1, len(equation)):
-                ch = equation[i]
-                if ch in op_map:
-                    left = equation[:i].strip()
-                    right = equation[i + 1:].strip()
-                    if left and right:
-                        return op_map[ch], left, right
 
-        raise ValueError("Invalid equation syntax")
+            .topbar-left {
+                width: 100%;
+                justify-content: space-between;
+                gap: 8px;
+            }
 
-    def run_ultracalc(self, equation: str) -> float | None:
-        op, num1, num2 = self.parse_equation(equation)
-        cli_bin = find_ultracalc_cli()
-        if not cli_bin:
-            raise RuntimeError("ultracalc-cli binary not found")
+            .topbar-actions {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
 
-        cmd = [cli_bin, "--calcapi", op, num1, num2]
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+            .topbar button {
+                padding: 6px 6px;
+                font-size: 11.5px;
+                min-height: 34px;
+                white-space: nowrap;
+            }
 
-        if proc.returncode != 0:
-            err_msg = proc.stderr.strip() or proc.stdout.strip() or f"Exit code {proc.returncode}"
-            raise RuntimeError(err_msg)
+            .workspace {
+                flex-direction: column;
+            }
 
-        output = proc.stdout.strip()
-        return float(output)
+            .sidebar-left,
+            .sidebar-right,
+            .stage {
+                display: none;
+                width: 100%;
+                flex: 1;
+                min-height: 0;
+                border-right: none;
+                border-left: none;
+            }
 
+            .sidebar-left.mobile-active,
+            .sidebar-right.mobile-active {
+                display: flex;
+                padding-bottom: 24px;
+            }
 
-def main():
-    app = QApplication(sys.argv)
-    window = CalculatorApp()
-    window.show()
-    sys.exit(app.exec())
+            .stage.mobile-active {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 10px 8px;
+                gap: 8px;
+                overflow: hidden;
+            }
 
+            .stage-viewport {
+                flex: 1;
+                width: 100%;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
 
-if __name__ == "__main__":
-    main()
+            .canvas-dim-badge {
+                position: static;
+                align-self: center;
+                font-size: 11px;
+                padding: 2px 8px;
+            }
+
+            .mobile-selection-bar {
+                display: flex;
+                width: 100%;
+                height: 44px;
+                flex-shrink: 0;
+                background: var(--bg-panel);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 0 8px 0 12px;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+            }
+
+            .mobile-sel-label {
+                font-size: 12px;
+                color: var(--text-muted);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .mobile-sel-label strong {
+                color: var(--text-main);
+            }
+
+            .mobile-sel-actions {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-shrink: 0;
+            }
+
+            .mobile-sel-actions button {
+                min-height: 30px;
+                padding: 4px 10px;
+                font-size: 12px;
+            }
+
+            #btn-mobile-back {
+                display: inline-flex;
+                min-height: 30px;
+                padding: 4px 10px;
+                font-size: 12px;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select {
+                min-height: 38px;
+                font-size: 16px;
+            }
+
+            .color-field {
+                height: 38px;
+            }
+
+            .color-field input[type="color"] {
+                width: 30px;
+                height: 28px;
+            }
+
+            .ui-element .el-resize {
+                width: 22px;
+                height: 22px;
+                right: -9px;
+                bottom: -9px;
+                border-radius: 50%;
+                border-width: 2px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+            }
+
+            .canvas-resize-handle {
+                width: 24px;
+                height: 24px;
+            }
+
+            .mobile-nav {
+                height: 50px;
+                background: var(--bg-panel);
+                border-top: 1px solid var(--border);
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                flex-shrink: 0;
+            }
+
+            .mobile-nav button {
+                border: none;
+                border-radius: 0;
+                background: transparent;
+                color: var(--text-muted);
+                font-size: 12px;
+                font-weight: 600;
+                height: 100%;
+            }
+
+            .mobile-nav button.active {
+                background: var(--bg-subtle);
+                color: var(--accent);
+                border-top: 2px solid var(--accent);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <div class="brand">UltraCalc</div>
+            <div class="mode-tabs">
+                <button id="btn-mode-design" class="active" onclick="setMode('design')">Design</button>
+                <button id="btn-mode-preview" onclick="set

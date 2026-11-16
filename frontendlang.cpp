@@ -20,7 +20,7 @@ void parse_joml(std::string& manifest) {
         std::string borderstyle;
         std::string fontlocation;     
     };
-    //TODO: Parse JSON to this spec
+    // TODO: Parse JSON/TOML UI layout specifications into UButton and CalcDisplay structures (post-1.0)
 }
 
 int main() {

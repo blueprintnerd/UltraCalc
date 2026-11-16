@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UltraCalc UIGen</title>
-   <!-- TODO:UNVIBE UI -->
+    <title>UltraCalc Layout Editor</title>
     <style>
         :root {
-            --bg-app: eggshell;
-            --bg-panel: eggshell;
-            --bg-input: eggshell;
-            --border: gray;
-            --text-main: #e6e9f0;
-            --text-muted: #8b93a7;
-            --accent: #FF7F50;
-            --accent-hover: #3b76e8;
-            --danger: #e05260;
-            --success: #34c77b;
+            --bg-app: #eceef1;
+            --bg-panel: #ffffff;
+            --bg-subtle: #f5f6f8;
+            --bg-input: #ffffff;
+            --border: #dcdfe5;
+            --border-strong: #c2c7d0;
+            --text-main: #181a1f;
+            --text-muted: #5e6573;
+            --accent: #0969da;
+            --accent-subtle: rgba(9, 105, 218, 0.1);
+            --ink-btn: #181a1f;
+            --ink-btn-hover: #2c303a;
+            --danger: #c62828;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
         }
 
         * {
@@ -26,7 +30,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: var(--font-sans);
             background: var(--bg-app);
             color: var(--text-main);
             height: 100vh;
@@ -34,15 +38,18 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            font-size: 13px;
+            line-height: 1.4;
         }
+
         .topbar {
-            height: 52px;
+            height: 46px;
             background: var(--bg-panel);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
+            padding: 0 14px;
             flex-shrink: 0;
             gap: 12px;
         }
@@ -50,78 +57,99 @@
         .topbar-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         .brand {
             font-weight: 700;
-            font-size: 15px;
-            letter-spacing: 0.3px;
+            font-size: 14px;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .mode-tabs {
+            display: inline-flex;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .mode-tabs button {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .mode-tabs button:hover {
+            background: rgba(0, 0, 0, 0.04);
             color: var(--text-main);
         }
 
-        .brand span {
-            color: var(--accent);
+        .mode-tabs button.active {
+            background: var(--bg-panel);
+            color: var(--text-main);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
         }
 
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         button {
             font-family: inherit;
             cursor: pointer;
-            border: 1px solid black;
-            background: coral;
+            border: 1px solid var(--border-strong);
+            background: var(--bg-panel);
             color: var(--text-main);
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 13px;
+            padding: 5px 11px;
+            border-radius: 4px;
+            font-size: 12px;
             font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         button:hover {
-            border: 3px solid black;
-            border-color: #404860;
+            background: var(--bg-subtle);
+            border-color: #9aa1ad;
         }
 
-        button.primary {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-        }
-
-        button.primary:hover {
-            background: var(--accent-hover);
+        button:active {
+            background: #e8eaee;
         }
 
         button.success {
-            background: var(--success);
-            border-color: var(--success);
-            color: #0b1912;
+            background: var(--ink-btn);
+            border-color: var(--ink-btn);
+            color: #ffffff;
             font-weight: 600;
         }
 
         button.success:hover {
-            filter: brightness(1.08);
+            background: var(--ink-btn-hover);
+            border-color: var(--ink-btn-hover);
         }
 
         button.danger {
-            background: transparent;
-            border-color: var(--danger);
+            background: var(--bg-panel);
+            border-color: #e5b4b4;
             color: var(--danger);
         }
 
         button.danger:hover {
-            background: rgba(224, 82, 96, 0.15);
-        }
-
-        button.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
+            background: #fef2f2;
+            border-color: var(--danger);
         }
 
         /* Main Workspace */
@@ -131,39 +159,48 @@
             min-height: 0;
         }
 
-        
         .sidebar-left {
-            width: 260px;
+            width: 258px;
             background: var(--bg-panel);
             border-right: 1px solid var(--border);
             padding: 14px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             flex-shrink: 0;
         }
-        
+
         .stage {
             flex: 1;
-            background: black;
-            background-size: 20px 20px;
+            background: var(--bg-app);
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
             overflow: auto;
-            padding: 32px;
+            padding: 28px;
             position: relative;
+        }
+
+        .stage-viewport {
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #canvas-stage-frame {
+            position: relative;
+            flex-shrink: 0;
         }
 
         #canvas-wrapper {
             position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
-            border: 1px solid #3c4358;
-            border-radius: 12px;
+           
+            border-radius: 10px;
             overflow: hidden;
             user-select: none;
-            flex-shrink: 0;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
         #calc-canvas {
@@ -175,8 +212,8 @@
 
         #calc-canvas.show-grid {
             background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+                linear-gradient(to right, rgba(128, 128, 128, 0.12) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(128, 128, 128, 0.12) 1px, transparent 1px);
             background-size: 8px 8px;
         }
 
@@ -184,20 +221,32 @@
             position: absolute;
             right: 0;
             bottom: 0;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             cursor: nwse-resize;
-            background: mint;
+            touch-action: none;
             z-index: 50;
+            background: linear-gradient(135deg,
+                transparent 46%,
+                rgba(100, 108, 120, 0.55) 46%,
+                rgba(100, 108, 120, 0.55) 56%,
+                transparent 56%,
+                transparent 70%,
+                rgba(100, 108, 120, 0.55) 70%,
+                rgba(100, 108, 120, 0.55) 80%,
+                transparent 80%);
         }
 
         .canvas-dim-badge {
             position: absolute;
-            bottom: 8px;
+            bottom: 10px;
             left: 12px;
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
             font-size: 11px;
             color: var(--text-muted);
-            background: rgba(15, 17, 23, 0.75);
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
             padding: 3px 8px;
             border-radius: 4px;
             pointer-events: none;
@@ -211,11 +260,23 @@
             justify-content: center;
             cursor: move;
             user-select: none;
-            transition: box-shadow 0.1s;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
         }
 
         .ui-element.preview-mode {
             cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .ui-element.preview-mode:hover {
+            filter: brightness(0.96);
+        }
+
+        .ui-element.preview-mode:active {
+            filter: brightness(0.9);
+            transform: translateY(0.5px);
         }
 
         .ui-element.selected {
@@ -226,14 +287,15 @@
 
         .ui-element .el-resize {
             position: absolute;
-            right: -4px;
-            bottom: -4px;
+            right: -5px;
+            bottom: -5px;
             width: 10px;
             height: 10px;
-            background: var(--accent);
-            border: 1px solid #fff;
+            background: #ffffff;
+            border: 1.5px solid var(--accent);
             border-radius: 2px;
             cursor: nwse-resize;
+            touch-action: none;
             display: none;
         }
 
@@ -247,39 +309,46 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            font-variant-numeric: tabular-nums;
         }
 
         /* Right Sidebar: Inspector */
         .sidebar-right {
-            width: 290px;
+            width: 276px;
             background: var(--bg-panel);
             border-left: 1px solid var(--border);
             padding: 14px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             flex-shrink: 0;
         }
 
         .section {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 9px;
             padding-bottom: 14px;
             border-bottom: 1px solid var(--border);
         }
 
         .section:last-child {
             border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .section-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
         }
 
         .section-title {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
         }
 
         .field {
@@ -295,7 +364,8 @@
         }
 
         label {
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 500;
             color: var(--text-muted);
         }
 
@@ -303,28 +373,54 @@
         input[type="number"],
         select {
             width: 100%;
+            height: 30px;
             background: var(--bg-input);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-strong);
             color: var(--text-main);
-            padding: 6px 8px;
-            border-radius: 5px;
-            font-size: 13px;
+            padding: 0 8px;
+            border-radius: 4px;
+            font-size: 12px;
             font-family: inherit;
         }
 
-        input[type="color"] {
-            width: 100%;
-            height: 30px;
+        input[type="number"] {
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .color-field {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             background: var(--bg-input);
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            padding: 3px 7px 3px 3px;
+            height: 30px;
+        }
+
+        .color-field input[type="color"] {
+            width: 24px;
+            height: 22px;
             border: 1px solid var(--border);
-            border-radius: 5px;
-            padding: 2px;
+            border-radius: 3px;
+            padding: 0;
+            background: transparent;
             cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .color-hex {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-main);
+            user-select: all;
         }
 
         input:focus, select:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-subtle);
         }
 
         .preset-grid {
@@ -335,50 +431,67 @@
 
         .preset-grid button {
             font-size: 11px;
-            padding: 5px 4px;
+            padding: 4px;
         }
 
         .ttf-dropzone {
-            border: 1px dashed var(--border);
-            border-radius: 6px;
-            padding: 10px;
+            border: 1px dashed var(--border-strong);
+            border-radius: 4px;
+            padding: 11px 10px;
             text-align: center;
             font-size: 12px;
             color: var(--text-muted);
             cursor: pointer;
-            background: var(--bg-input);
-            transition: border-color 0.15s, background 0.15s;
+            background: var(--bg-subtle);
         }
 
         .ttf-dropzone:hover, .ttf-dropzone.dragover {
             border-color: var(--accent);
-            background: rgba(79, 140, 255, 0.08);
+            color: var(--text-main);
+            background: var(--bg-panel);
         }
 
         .ttf-status {
-            font-size: 12px;
-            color: var(--success);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #156d3c;
             word-break: break-all;
         }
 
         .checkbox-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             font-size: 12px;
             color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            accent-color: var(--accent);
             cursor: pointer;
         }
 
         .hint {
             font-size: 11px;
             color: var(--text-muted);
-            line-height: 1.4;
+            line-height: 1.45;
         }
+
+        .hint code {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            padding: 0 4px;
+            border-radius: 3px;
+            color: var(--text-main);
+        }
+
         .modal-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(15, 18, 24, 0.45);
             display: none;
             align-items: center;
             justify-content: center;
@@ -391,67 +504,88 @@
 
         .modal {
             background: var(--bg-panel);
-            border: 1px solid var(--border);
-            border-radius: 10px;
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
             width: 640px;
             max-width: 92vw;
             max-height: 82vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
         }
 
         .modal-header {
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: var(--bg-subtle);
+        }
+
+        .modal-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .modal-body {
-            padding: 16px;
+            padding: 14px;
             overflow: auto;
         }
 
         pre {
-            background: var(--bg-app);
+            background: var(--bg-subtle);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 4px;
             padding: 12px;
+            font-family: var(--font-mono);
             font-size: 12px;
+            line-height: 1.45;
             overflow-x: auto;
-            color: #c8d3f5;
+            color: var(--text-main);
         }
 
         .mobile-nav {
             display: none;
         }
 
-        #edit-selected-pill {
+        .mobile-selection-bar {
+            display: none;
+        }
+
+        #btn-mobile-back {
             display: none;
         }
 
         @media (max-width: 820px) {
             .topbar {
                 height: auto;
-                flex-wrap: wrap;
+                flex-direction: column;
+                align-items: stretch;
                 padding: 8px 10px;
+                gap: 6px;
+            }
+
+            .topbar-left {
+                width: 100%;
+                justify-content: space-between;
                 gap: 8px;
             }
 
-            .topbar-left,
             .topbar-actions {
                 width: 100%;
-                justify-content: space-between;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
                 gap: 6px;
             }
 
             .topbar button {
-                padding: 7px 10px;
-                font-size: 12px;
-                min-height: 36px;
+                padding: 6px 6px;
+                font-size: 11.5px;
+                min-height: 34px;
+                white-space: nowrap;
             }
 
             .workspace {
@@ -463,7 +597,8 @@
             .stage {
                 display: none;
                 width: 100%;
-                height: 100%;
+                flex: 1;
+                min-height: 0;
                 border-right: none;
                 border-left: none;
             }
@@ -471,39 +606,117 @@
             .sidebar-left.mobile-active,
             .sidebar-right.mobile-active {
                 display: flex;
+                padding-bottom: 24px;
             }
 
             .stage.mobile-active {
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-start;
-                padding: 16px 12px 24px;
-                gap: 10px; 
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 10px 8px;
+                gap: 8px;
+                overflow: hidden;
+            }
+
+            .stage-viewport {
+                margin: 0;
+                flex: 1;
+                width: 100%;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .canvas-dim-badge {
+                position: static;
+                align-self: center;
+                font-size: 11px;
+                padding: 2px 8px;
+            }
+
+            .mobile-selection-bar {
+                display: flex;
+                width: 100%;
+                height: 44px;
+                flex-shrink: 0;
+                background: var(--bg-panel);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 0 8px 0 12px;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+            }
+
+            .mobile-sel-label {
+                font-size: 12px;
+                color: var(--text-muted);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .mobile-sel-label strong {
+                color: var(--text-main);
+            }
+
+            .mobile-sel-actions {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-shrink: 0;
+            }
+
+            .mobile-sel-actions button {
+                min-height: 30px;
+                padding: 4px 10px;
+                font-size: 12px;
+            }
+
+            #btn-mobile-back {
+                display: inline-flex;
+                min-height: 30px;
+                padding: 4px 10px;
+                font-size: 12px;
             }
 
             input[type="text"],
             input[type="number"],
             select {
-                min-height: 40px;
-                font-size: 14px;
+                min-height: 38px;
+                font-size: 16px;
             }
 
-            .ui-element,
-            .el-resize-handle,
-            .canvas-resize-handle {
-                touch-action: none;
+            .color-field {
+                height: 38px;
             }
 
-            .el-resize-handle {
-                width: 16px;
-                height: 16px;
-                right: -5px;
-                bottom: -5px;
+            .color-field input[type="color"] {
+                width: 30px;
+                height: 28px;
+            }
+
+            .ui-element .el-resize {
+                width: 22px;
+                height: 22px;
+                right: -9px;
+                bottom: -9px;
                 border-radius: 50%;
+                border-width: 2px;
+                box-shadow: 0 1px 
+            }
+
+            .canvas-resize-handle {
+                width: 24px;
+                height: 24px;
             }
 
             .mobile-nav {
-                height: 54px;
+                height: 50px;
                 background: var(--bg-panel);
                 border-top: 1px solid var(--border);
                 display: grid;
@@ -516,13 +729,13 @@
                 border-radius: 0;
                 background: transparent;
                 color: var(--text-muted);
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 600;
                 height: 100%;
             }
 
             .mobile-nav button.active {
-                background: rgba(79, 140, 255, 0.14);
+                background: var(--bg-subtle);
                 color: var(--accent);
                 border-top: 2px solid var(--accent);
             }
@@ -533,35 +746,33 @@
     <header class="topbar">
         <div class="topbar-left">
             <div class="brand">UltraCalc</div>
-            <button id="btn-mode-design" class="active" onclick="setMode('design')">Design Mode</button>
-            <button id="btn-mode-preview" onclick="setMode('preview')">Test Calculator</button>
+            <div class="mode-tabs">
+                <button id="btn-mode-design" class="active" onclick="setMode('design')">Design</button>
+                <button id="btn-mode-preview" onclick="setMode('preview')">Test Calculator</button>
+            </div>
         </div>
 
         <div class="topbar-actions">
-            <button onclick="addButton()">+ Add Button</button>
-            <button onclick="resetLayout()">Reset Layout</button>
-            <button onclick="openSpecModal()">View Spec</button>
-            <button class="success" onclick="packageExtension()">Package Extension (.uce)</button>
+            <button onclick="addButton()">+ Button</button>
+            <button onclick="resetLayout()">Reset</button>
+            <button onclick="openSpecModal()">Spec</button>
+            <button class="success" onclick="packageExtension()">Export .uce</button>
         </div>
-
     </header>
 
     <div class="workspace">
-        <!-- Calc Builder -->
         <aside class="sidebar-left">
             <div class="section">
-                <div class="section-title">App Dimensions</div>
+                <div class="section-title">Window &amp; Grid</div>
                 <div class="field-row">
                     <div class="field">
                         <label for="canvas-w">Width (px)</label>
                         <input type="number" id="canvas-w" min="200" max="1200" value="340">
                     </div>
-
                     <div class="field">
                         <label for="canvas-h">Height (px)</label>
                         <input type="number" id="canvas-h" min="200" max="1200" value="480">
                     </div>
-
                 </div>
 
                 <div class="preset-grid">
@@ -572,27 +783,32 @@
 
                 <div class="field">
                     <label for="canvas-bg">Window Background</label>
-                    <input type="color" id="canvas-bg" value="#1a1d26">
+                    <div class="color-field">
+                        <input type="color" id="canvas-bg" value="#ededeb">
+                        <span class="color-hex" id="canvas-bg-hex">#ededeb</span>
+                    </div>
                 </div>
 
                 <label class="checkbox-row">
                     <input type="checkbox" id="snap-grid" checked>
-                    Snap to grid
+                    Snap to 8px grid
+                </label>
+
+                <label class="checkbox-row">
+                    <input type="checkbox" id="scale-on-resize" checked>
+                    Scale elements with window
                 </label>
             </div>
-
 
             <div class="section">
                 <div class="section-title">Font (.ttf / .otf)</div>
                 <div class="ttf-dropzone" id="ttf-dropzone" onclick="document.getElementById('ttf-input').click()">
-                    Click or drop a <strong>.ttf</strong> font file here
+                    Drop or click to load a <strong>.ttf</strong> font
                     <input type="file" id="ttf-input" accept=".ttf,.otf,.woff,.woff2" style="display:none">
                 </div>
-
                 <div id="ttf-info" class="hint">Using default system font</div>
                 <button id="btn-clear-ttf" style="display:none" onclick="clearTtf()">Remove Custom Font</button>
             </div>
-
 
             <div class="section">
                 <div class="section-title">Extension Package</div>
@@ -606,7 +822,6 @@
                         <label for="ext-version">Version</label>
                         <input type="text" id="ext-version" value="1.0.0">
                     </div>
-
                     <div class="field">
                         <label for="ext-main">Entry Point</label>
                         <select id="ext-main">
@@ -614,7 +829,6 @@
                             <option value="index.html">index.html (Web)</option>
                         </select>
                     </div>
-
                 </div>
 
                 <div class="field">
@@ -623,28 +837,38 @@
                 </div>
 
                 <p class="hint">
-                    Generates a <code>.uce</code> extension with <code>manifest.json</code>, <code>layout/calc.json</code>, <code>gui.py</code>, <code>index.html</code>, and your <code>.ttf</code> font.
+                    Bundles <code>manifest.json</code>, <code>layout/calc.json</code>, <code>gui.py</code>, and <code>index.html</code> into a <code>.uce</code> archive.
                 </p>
             </div>
-
         </aside>
 
-        <!-- Center Stage -->
         <main class="stage mobile-active">
-            <button id="edit-selected-pill" onclick="switchMobileTab('inspector')">Edit Selected</button>
-            <div id="canvas-wrapper">
-                <div id="calc-canvas" class="show-grid"></div>
-                <div class="canvas-resize-handle" id="canvas-resize-handle" title="Drag to resize window"></div>
+            <div class="stage-viewport" id="stage-viewport">
+                <div id="canvas-stage-frame">
+                    <div id="canvas-wrapper">
+                        <div id="calc-canvas" class="show-grid"></div>
+                        <div class="canvas-resize-handle" id="canvas-resize-handle" title="Drag to resize window"></div>
+                    </div>
+                </div>
+                <div class="canvas-dim-badge" id="dim-badge">340 x 480</div>
             </div>
 
-            <div class="canvas-dim-badge" id="dim-badge">340 x 480</div>
+            <div class="mobile-selection-bar" id="mobile-selection-bar">
+                <span class="mobile-sel-label" id="mobile-sel-label">Tap an element to move or edit</span>
+                <div class="mobile-sel-actions">
+                    <button id="btn-mobile-edit" style="display:none" onclick="switchMobileTab('inspector')">Edit</button>
+                    <button id="btn-mobile-delete" class="danger" style="display:none" onclick="deleteSelected()">Delete</button>
+                </div>
+            </div>
         </main>
 
-        <!-- Right Sidebar: Element Inspector -->
         <aside class="sidebar-right">
             <div class="section">
-                <div class="section-title" id="inspector-title">Selected Element</div>
-                <div id="no-selection" class="hint">Click the display or any button on the canvas to edit its position, size, style, and action.</div>
+                <div class="section-header-row">
+                    <div class="section-title" id="inspector-title">Selected Element</div>
+                    <button id="btn-mobile-back" onclick="switchMobileTab('canvas')">Done</button>
+                </div>
+                <div id="no-selection" class="hint">Select the display or any button on the canvas to edit its geometry, colors, and action.</div>
                 <div id="inspector-fields" style="display:none; flex-direction:column; gap:10px;">
                     <div class="field" id="field-label">
                         <label for="el-label">Label</label>
@@ -678,7 +902,6 @@
                                 <option value="=">Equals (=)</option>
                                 <option value="C">Clear (C)</option>
                                 <option value="DEL">Backspace (DEL)</option>
-                                
                             </optgroup>
                         </select>
                     </div>
@@ -688,12 +911,10 @@
                             <label for="el-x">X (px)</label>
                             <input type="number" id="el-x">
                         </div>
-
                         <div class="field">
                             <label for="el-y">Y (px)</label>
                             <input type="number" id="el-y">
                         </div>
-
                     </div>
 
                     <div class="field-row">
@@ -701,25 +922,27 @@
                             <label for="el-w">Width (px)</label>
                             <input type="number" id="el-w" min="16">
                         </div>
-
                         <div class="field">
                             <label for="el-h">Height (px)</label>
                             <input type="number" id="el-h" min="16">
                         </div>
-
                     </div>
 
                     <div class="field-row">
                         <div class="field">
                             <label for="el-bg">Background</label>
-                            <input type="color" id="el-bg">
+                            <div class="color-field">
+                                <input type="color" id="el-bg">
+                                <span class="color-hex" id="el-bg-hex">#ffffff</span>
+                            </div>
                         </div>
-
                         <div class="field">
                             <label for="el-fg">Text Color</label>
-                            <input type="color" id="el-fg">
+                            <div class="color-field">
+                                <input type="color" id="el-fg">
+                                <span class="color-hex" id="el-fg-hex">#181a1f</span>
+                            </div>
                         </div>
-
                     </div>
 
                     <div class="field-row">
@@ -727,31 +950,25 @@
                             <label for="el-font-size">Font Size (px)</label>
                             <input type="number" id="el-font-size" min="8" max="96">
                         </div>
-
                         <div class="field">
                             <label for="el-radius">Radius (px)</label>
                             <input type="number" id="el-radius" min="0" max="64">
                         </div>
-
                     </div>
 
                     <button class="danger" id="btn-delete-el" onclick="deleteSelected()">Delete Button</button>
                 </div>
-
             </div>
-
 
             <div class="section">
-                <div class="section-title">Tips</div>
+                <div class="section-title">Shortcuts</div>
                 <p class="hint">
-                    - Drag buttons or the display anywhere on the canvas.<br>
-                    - Drag the blue corner handle on a selected item or the canvas bottom-right corner to resize.<br>
+                    Drag elements to move, or drag the corner handle to resize.<br>
+                    Arrow keys nudge selected items (<code>Shift</code> for 1px) and <code>Delete</code> removes buttons.
                 </p>
             </div>
-
         </aside>
     </div>
-
 
     <nav class="mobile-nav">
         <button id="mnav-canvas" class="active" onclick="switchMobileTab('canvas')">Canvas</button>
@@ -759,35 +976,36 @@
         <button id="mnav-settings" onclick="switchMobileTab('settings')">Settings</button>
     </nav>
 
-
     <div class="modal-backdrop" id="spec-modal" onclick="if(event.target===this) closeSpecModal()">
         <div class="modal">
             <div class="modal-header">
                 <strong>Extension Manifest &amp; Layout Spec</strong>
-                <button onclick="closeSpecModal()">Close</button>
+                <div class="modal-header-actions">
+                    <button id="btn-copy-spec" onclick="copySpecJson()">Copy JSON</button>
+                    <button onclick="closeSpecModal()">Close</button>
+                </div>
             </div>
-
             <div class="modal-body">
                 <pre id="spec-output"></pre>
             </div>
-
         </div>
-
     </div>
-
 
     <script>
         const GRID_SIZE = 8;
-        let mode = 'design'; // 'design' | 'preview'
+        const DEFAULT_BG = '#ededeb';
+        let mode = 'design';
         let selectedId = null;
         let customFont = null; // { filename: string, bytes: Uint8Array, family: string }
         let calcExpr = '';
+        let canvasScale = 1;
 
         const state = {
             width: 340,
             height: 480,
-            background: '#1a1d26',
+            background: DEFAULT_BG,
             snap: true,
+            scaleOnResize: true,
             elements: []
         };
 
@@ -799,22 +1017,46 @@
                     label: '0',
                     action: 'display',
                     x: 16,
-                    y: 24,
+                    y: 16,
                     w: 308,
-                    h: 72,
-                    bg: '#0f1219',
-                    fg: '#e6e9f0',
-                    fontSize: 32,
-                    radius: 10
+                    h: 80,
+                    bg: '#dfe5d8',
+                    fg: '#1a2017',
+                    fontSize: 34,
+                    radius: 4
                 }
             ];
 
             const rows = [
-                [{ l: 'C', a: 'C', bg: '#3b252c', fg: '#ff7b89' }, { l: 'DEL', a: 'DEL', bg: '#2b3040', fg: '#e6e9f0' }, { l: '%', a: '%', bg: '#2b3040', fg: '#7aa2f7' }, { l: '/', a: '/', bg: '#2b3040', fg: '#7aa2f7' }],
-                [{ l: '7', a: '7' }, { l: '8', a: '8' }, { l: '9', a: '9' }, { l: '*', a: '*', bg: '#2b3040', fg: '#7aa2f7' }],
-                [{ l: '4', a: '4' }, { l: '5', a: '5' }, { l: '6', a: '6' }, { l: '-', a: '-', bg: '#2b3040', fg: '#7aa2f7' }],
-                [{ l: '1', a: '1' }, { l: '2', a: '2' }, { l: '3', a: '3' }, { l: '+', a: '+', bg: '#2b3040', fg: '#7aa2f7' }],
-                [{ l: '0', a: '0', w: 148 }, { l: '.', a: '.' }, { l: '=', a: '=', bg: '#4f8cff', fg: '#ffffff' }]
+                [
+                    { l: 'C', a: 'C', bg: '#d9483b', fg: '#ffffff' },
+                    { l: 'DEL', a: 'DEL', bg: '#dcdde0', fg: '#181a1f' },
+                    { l: '%', a: '%', bg: '#dcdde0', fg: '#181a1f' },
+                    { l: '÷', a: '/', bg: '#dcdde0', fg: '#181a1f' }
+                ],
+                [
+                    { l: '7', a: '7' },
+                    { l: '8', a: '8' },
+                    { l: '9', a: '9' },
+                    { l: '×', a: '*', bg: '#dcdde0', fg: '#181a1f' }
+                ],
+                [
+                    { l: '4', a: '4' },
+                    { l: '5', a: '5' },
+                    { l: '6', a: '6' },
+                    { l: '-', a: '-', bg: '#dcdde0', fg: '#181a1f' }
+                ],
+                [
+                    { l: '1', a: '1' },
+                    { l: '2', a: '2' },
+                    { l: '3', a: '3' },
+                    { l: '+', a: '+', bg: '#dcdde0', fg: '#181a1f' }
+                ],
+                [
+                    { l: '0', a: '0', w: 150 },
+                    { l: '.', a: '.' },
+                    { l: '=', a: '=', bg: '#1b1e23', fg: '#ffffff' }
+                ]
             ];
 
             let y = 112;
@@ -822,8 +1064,8 @@
             for (const row of rows) {
                 let x = 16;
                 for (const item of row) {
-                    const w = item.w || 70;
-                    const h = 62;
+                    const w = item.w || 71;
+                    const h = 64;
                     elements.push({
                         id: 'btn_' + (idx++),
                         type: 'button',
@@ -833,14 +1075,14 @@
                         y,
                         w,
                         h,
-                        bg: item.bg || '#232836',
-                        fg: item.fg || '#e6e9f0',
+                        bg: item.bg || '#ffffff',
+                        fg: item.fg || '#181a1f',
                         fontSize: 20,
-                        radius: 10
+                        radius: 5
                     });
                     x += w + 8;
                 }
-                y += 70;
+                y += 72;
             }
             return elements;
         }
@@ -849,43 +1091,116 @@
             return state.snap ? Math.round(val / GRID_SIZE) * GRID_SIZE : Math.round(val);
         }
 
+        function clampElementToCanvas(el, width = state.width, height = state.height) {
+            el.w = Math.max(16, Math.min(width, Math.round(el.w)));
+            el.h = Math.max(16, Math.min(height, Math.round(el.h)));
+            el.x = Math.max(0, Math.min(width - el.w, Math.round(el.x)));
+            el.y = Math.max(0, Math.min(height - el.h, Math.round(el.y)));
+        }
+
+        function applyCanvasResize(oldW, oldH, newW, newH, sourceElements, forceScale = state.scaleOnResize) {
+            const targetW = Math.max(200, Math.min(1200, Math.round(newW)));
+            const targetH = Math.max(200, Math.min(1200, Math.round(newH)));
+            const sx = targetW / Math.max(1, oldW);
+            const sy = targetH / Math.max(1, oldH);
+            const minScale = Math.min(sx, sy);
+
+            state.width = targetW;
+            state.height = targetH;
+
+            state.elements = sourceElements.map(orig => {
+                const copy = { ...orig };
+                if (forceScale) {
+                    const left = Math.round(orig.x * sx);
+                    const right = Math.round((orig.x + orig.w) * sx);
+                    const top = Math.round(orig.y * sy);
+                    const bottom = Math.round((orig.y + orig.h) * sy);
+                    copy.x = left;
+                    copy.y = top;
+                    copy.w = Math.max(18, right - left);
+                    copy.h = Math.max(18, bottom - top);
+                    copy.fontSize = Math.max(10, Math.min(72, Math.round(orig.fontSize * minScale)));
+                }
+                clampElementToCanvas(copy, targetW, targetH);
+                return copy;
+            });
+        }
+
         // --- Rendering ---
+        const stageFrame = document.getElementById('canvas-stage-frame');
         const canvasWrapper = document.getElementById('canvas-wrapper');
         const calcCanvas = document.getElementById('calc-canvas');
         const dimBadge = document.getElementById('dim-badge');
 
-        function renderCanvas() {
+        function findElementDom(id) {
+            for (const child of calcCanvas.children) {
+                if (child.dataset && child.dataset.id === id) return child;
+            }
+            return null;
+        }
+
+        function applyElementStyles(div, el, fontFamily) {
+            div.className = 'ui-element' +
+                (el.type === 'display' ? ' ui-display' : '') +
+                (mode === 'preview' ? ' preview-mode' : '') +
+                (mode === 'design' && el.id === selectedId ? ' selected' : '');
+            div.style.left = el.x + 'px';
+            div.style.top = el.y + 'px';
+            div.style.width = el.w + 'px';
+            div.style.height = el.h + 'px';
+            div.style.background = el.bg;
+            div.style.color = el.fg;
+            div.style.fontSize = el.fontSize + 'px';
+            div.style.borderRadius = el.radius + 'px';
+            div.style.fontFamily = fontFamily;
+            div.style.fontWeight = el.type === 'display' ? '600' : '500';
+           
+        }
+
+        function syncCanvasChrome() {
             canvasWrapper.style.width = state.width + 'px';
             canvasWrapper.style.height = state.height + 'px';
             calcCanvas.style.background = state.background;
             calcCanvas.classList.toggle('show-grid', mode === 'design' && state.snap);
             dimBadge.textContent = `${state.width} x ${state.height}`;
 
-            document.getElementById('canvas-w').value = state.width;
-            document.getElementById('canvas-h').value = state.height;
+            const wInput = document.getElementById('canvas-w');
+            const hInput = document.getElementById('canvas-h');
+            if (document.activeElement !== wInput) wInput.value = state.width;
+            if (document.activeElement !== hInput) hInput.value = state.height;
             document.getElementById('canvas-bg').value = state.background;
+            document.getElementById('canvas-bg-hex').textContent = state.background;
+            updateCanvasScale();
+        }
+
+        function syncElementsGeometryInDom() {
+            const fontFamily = customFont ? `'${customFont.family}', sans-serif` : 'inherit';
+            for (const el of state.elements) {
+                const div = findElementDom(el.id);
+                if (div) {
+                    applyElementStyles(div, el, fontFamily);
+                }
+            }
+        }
+
+        function updateSelectionInDom() {
+            for (const node of calcCanvas.children) {
+                if (node.classList && node.classList.contains('ui-element')) {
+                    node.classList.toggle('selected', mode === 'design' && node.dataset.id === selectedId);
+                }
+            }
+        }
+
+        function renderCanvas() {
+            syncCanvasChrome();
 
             calcCanvas.innerHTML = '';
             const fontFamily = customFont ? `'${customFont.family}', sans-serif` : 'inherit';
 
             for (const el of state.elements) {
                 const div = document.createElement('div');
-                div.className = 'ui-element' +
-                    (el.type === 'display' ? ' ui-display' : '') +
-                    (mode === 'preview' ? ' preview-mode' : '') +
-                    (mode === 'design' && el.id === selectedId ? ' selected' : '');
                 div.dataset.id = el.id;
-                div.style.left = el.x + 'px';
-                div.style.top = el.y + 'px';
-                div.style.width = el.w + 'px';
-                div.style.height = el.h + 'px';
-                div.style.background = el.bg;
-                div.style.color = el.fg;
-                div.style.fontSize = el.fontSize + 'px';
-                div.style.borderRadius = el.radius + 'px';
-                div.style.fontFamily = fontFamily;
-                div.style.fontWeight = el.type === 'display' ? '600' : '500';
-                div.style.border = '1px solid rgba(255,255,255,0.08)';
+                applyElementStyles(div, el, fontFamily);
 
                 if (el.type === 'display') {
                     div.textContent = mode === 'preview' ? (calcExpr || '0') : el.label;
@@ -916,6 +1231,8 @@
             const noSel = document.getElementById('no-selection');
             const fields = document.getElementById('inspector-fields');
 
+            updateMobileSelectionBar(el);
+
             if (!el || mode === 'preview') {
                 document.getElementById('inspector-title').textContent = 'Selected Element';
                 noSel.style.display = 'block';
@@ -940,24 +1257,57 @@
             document.getElementById('el-h').value = el.h;
             document.getElementById('el-bg').value = el.bg;
             document.getElementById('el-fg').value = el.fg;
+            document.getElementById('el-bg-hex').textContent = el.bg;
+            document.getElementById('el-fg-hex').textContent = el.fg;
             document.getElementById('el-font-size').value = el.fontSize;
             document.getElementById('el-radius').value = el.radius;
         }
 
-        function selectElement(id) {
+        function updateMobileSelectionBar(el) {
+            const labelEl = document.getElementById('mobile-sel-label');
+            const editBtn = document.getElementById('btn-mobile-edit');
+            const delBtn = document.getElementById('btn-mobile-delete');
+            if (!labelEl || !editBtn || !delBtn) return;
+
+            if (mode === 'preview') {
+                labelEl.textContent = 'Test mode active — tap buttons to calculate';
+                editBtn.style.display = 'none';
+                delBtn.style.display = 'none';
+                return;
+            }
+
+            if (!el) {
+                labelEl.textContent = 'Tap an element to move or edit';
+                editBtn.style.display = 'none';
+                delBtn.style.display = 'none';
+                return;
+            }
+
+            const name = el.type === 'display' ? 'Display Block' : `Button "${el.label || el.id}"`;
+            labelEl.innerHTML = `Selected: <strong>${name.replace(/</g, '&lt;')}</strong>`;
+            editBtn.style.display = 'inline-flex';
+            delBtn.style.display = el.type === 'display' ? 'none' : 'inline-flex';
+        }
+
+        function selectElement(id, rebuildDom = false) {
             selectedId = id;
-            renderCanvas();
+            if (rebuildDom) renderCanvas();
+            else updateSelectionInDom();
             renderInspector();
         }
 
-        // --- Dragging & Resizing ---
+        // --- Dragging & Resizing (without destroying active pointer target DOM nodes) ---
         function startElDrag(e, id) {
+            if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
             e.preventDefault();
             e.stopPropagation();
-            selectElement(id);
+            selectElement(id, false);
 
             const el = state.elements.find(item => item.id === id);
-            if (!el) return;
+            const div = findElementDom(id);
+            if (!el || !div) return;
+
+            try { div.setPointerCapture(e.pointerId); } catch (_) {}
 
             const startX = e.clientX;
             const startY = e.clientY;
@@ -969,11 +1319,14 @@
                 const dy = (ev.clientY - startY) / canvasScale;
                 el.x = Math.max(0, Math.min(state.width - el.w, snapVal(origX + dx)));
                 el.y = Math.max(0, Math.min(state.height - el.h, snapVal(origY + dy)));
-                renderCanvas();
-                renderInspector();
+                div.style.left = el.x + 'px';
+                div.style.top = el.y + 'px';
+                document.getElementById('el-x').value = el.x;
+                document.getElementById('el-y').value = el.y;
             }
 
             function onUp() {
+                try { div.releasePointerCapture(e.pointerId); } catch (_) {}
                 window.removeEventListener('pointermove', onMove);
                 window.removeEventListener('pointerup', onUp);
                 window.removeEventListener('pointercancel', onUp);
@@ -987,8 +1340,14 @@
         function startElResize(e, id) {
             e.preventDefault();
             e.stopPropagation();
+            selectElement(id, false);
+
             const el = state.elements.find(item => item.id === id);
-            if (!el) return;
+            const div = findElementDom(id);
+            const handle = e.currentTarget;
+            if (!el || !div) return;
+
+            try { handle.setPointerCapture(e.pointerId); } catch (_) {}
 
             const startX = e.clientX;
             const startY = e.clientY;
@@ -1000,11 +1359,14 @@
                 const dy = (ev.clientY - startY) / canvasScale;
                 el.w = Math.max(24, Math.min(state.width - el.x, snapVal(origW + dx)));
                 el.h = Math.max(24, Math.min(state.height - el.y, snapVal(origH + dy)));
-                renderCanvas();
-                renderInspector();
+                div.style.width = el.w + 'px';
+                div.style.height = el.h + 'px';
+                document.getElementById('el-w').value = el.w;
+                document.getElementById('el-h').value = el.h;
             }
 
             function onUp() {
+                try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
                 window.removeEventListener('pointermove', onMove);
                 window.removeEventListener('pointerup', onUp);
                 window.removeEventListener('pointercancel', onUp);
@@ -1018,18 +1380,29 @@
         document.getElementById('canvas-resize-handle').addEventListener('pointerdown', (e) => {
             if (mode !== 'design') return;
             e.preventDefault();
+            e.stopPropagation();
+            const handle = e.currentTarget;
+            try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+
             const startX = e.clientX;
             const startY = e.clientY;
             const origW = state.width;
             const origH = state.height;
+            const origEls = state.elements.map(item => ({ ...item }));
 
             function onMove(ev) {
-                state.width = Math.max(200, Math.min(1200, snapVal(origW + (ev.clientX - startX))));
-                state.height = Math.max(200, Math.min(1200, snapVal(origH + (ev.clientY - startY))));
-                renderCanvas();
+                const dx = (ev.clientX - startX) / canvasScale;
+                const dy = (ev.clientY - startY) / canvasScale;
+                const nextW = Math.max(200, Math.min(1200, snapVal(origW + dx)));
+                const nextH = Math.max(200, Math.min(1200, snapVal(origH + dy)));
+                applyCanvasResize(origW, origH, nextW, nextH, origEls);
+                syncCanvasChrome();
+                syncElementsGeometryInDom();
+                renderInspector();
             }
 
             function onUp() {
+                try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
                 window.removeEventListener('pointermove', onMove);
                 window.removeEventListener('pointerup', onUp);
                 window.removeEventListener('pointercancel', onUp);
@@ -1042,35 +1415,75 @@
 
         calcCanvas.addEventListener('pointerdown', (e) => {
             if (e.target === calcCanvas && mode === 'design') {
-                selectElement(null);
+                selectElement(null, false);
             }
         });
 
-        // --- Inspector Bindings ---
-        document.getElementById('canvas-w').addEventListener('input', (e) => {
-            state.width = Math.max(200, Math.min(1200, parseInt(e.target.value, 10) || 340));
-            renderCanvas();
-        });
+        let inputResizeBase = null;
 
-        document.getElementById('canvas-h').addEventListener('input', (e) => {
-            state.height = Math.max(200, Math.min(1200, parseInt(e.target.value, 10) || 480));
+        function beginInputResizeSnapshot() {
+            inputResizeBase = {
+                w: state.width,
+                h: state.height,
+                elements: state.elements.map(item => ({ ...item }))
+            };
+        }
+
+        function handleDimInput(axis, rawVal, commit) {
+            const parsed = parseInt(rawVal, 10);
+            if (isNaN(parsed)) return;
+            if (!commit && (parsed < 200 || parsed > 1200)) return;
+            const clamped = Math.max(200, Math.min(1200, parsed));
+            const base = inputResizeBase || {
+                w: state.width,
+                h: state.height,
+                elements: state.elements.map(item => ({ ...item }))
+            };
+            const targetW = axis === 'w' ? clamped : base.w;
+            const targetH = axis === 'h' ? clamped : base.h;
+            applyCanvasResize(base.w, base.h, targetW, targetH, base.elements);
             renderCanvas();
+            renderInspector();
+        }
+
+        const canvasWInput = document.getElementById('canvas-w');
+        const canvasHInput = document.getElementById('canvas-h');
+
+        canvasWInput.addEventListener('focus', beginInputResizeSnapshot);
+        canvasHInput.addEventListener('focus', beginInputResizeSnapshot);
+        canvasWInput.addEventListener('input', (e) => handleDimInput('w', e.target.value, false));
+        canvasHInput.addEventListener('input', (e) => handleDimInput('h', e.target.value, false));
+        canvasWInput.addEventListener('change', (e) => {
+            handleDimInput('w', e.target.value || state.width, true);
+            canvasWInput.value = state.width;
+            inputResizeBase = null;
+        });
+        canvasHInput.addEventListener('change', (e) => {
+            handleDimInput('h', e.target.value || state.height, true);
+            canvasHInput.value = state.height;
+            inputResizeBase = null;
         });
 
         document.getElementById('canvas-bg').addEventListener('input', (e) => {
             state.background = e.target.value;
-            renderCanvas();
+            calcCanvas.style.background = state.background;
+            document.getElementById('canvas-bg-hex').textContent = state.background;
         });
 
         document.getElementById('snap-grid').addEventListener('change', (e) => {
             state.snap = e.target.checked;
-            renderCanvas();
+            calcCanvas.classList.toggle('show-grid', mode === 'design' && state.snap);
+        });
+
+        document.getElementById('scale-on-resize').addEventListener('change', (e) => {
+            state.scaleOnResize = e.target.checked;
         });
 
         function applyCanvasPreset(w, h) {
-            state.width = w;
-            state.height = h;
+            const snapshot = state.elements.map(item => ({ ...item }));
+            applyCanvasResize(state.width, state.height, w, h, snapshot, true);
             renderCanvas();
+            renderInspector();
         }
 
         function bindInspectorInput(inputId, prop, isInt = false) {
@@ -1078,7 +1491,13 @@
                 const el = state.elements.find(item => item.id === selectedId);
                 if (!el) return;
                 el[prop] = isInt ? (parseInt(e.target.value, 10) || 0) : e.target.value;
+                if (prop === 'x' || prop === 'y' || prop === 'w' || prop === 'h') {
+                    clampElementToCanvas(el);
+                }
+                if (prop === 'bg') document.getElementById('el-bg-hex').textContent = el.bg;
+                if (prop === 'fg') document.getElementById('el-fg-hex').textContent = el.fg;
                 renderCanvas();
+                updateMobileSelectionBar(el);
             });
         }
 
@@ -1095,23 +1514,25 @@
 
         function addButton() {
             const id = 'btn_' + Date.now();
+            const w = Math.min(71, state.width);
+            const h = Math.min(56, state.height);
             const newBtn = {
                 id,
                 type: 'button',
                 label: '0',
                 action: '0',
-                x: 16,
-                y: Math.max(16, state.height - 80),
-                w: 70,
-                h: 56,
-                bg: '#232836',
-                fg: '#e6e9f0',
+                x: Math.min(16, Math.max(0, state.width - w)),
+                y: Math.max(0, Math.min(state.height - h, state.height - h - 16)),
+                w,
+                h,
+                bg: '#ffffff',
+                fg: '#181a1f',
                 fontSize: 20,
-                radius: 10
+                radius: 5
             };
             state.elements.push(newBtn);
             setMode('design');
-            selectElement(id);
+            selectElement(id, true);
         }
 
         function deleteSelected() {
@@ -1125,14 +1546,14 @@
         function resetLayout() {
             state.width = 340;
             state.height = 480;
-            state.background = '#1a1d26';
+            state.background = DEFAULT_BG;
             state.elements = createDefaultElements();
             selectedId = null;
             renderCanvas();
             renderInspector();
         }
 
-        // --- Mode & Preview Calculator ---
+      
         function setMode(nextMode) {
             mode = nextMode;
             calcExpr = '';
@@ -1208,10 +1629,10 @@
                 if (calcExpr === 'Err' || calcExpr === 'Div/0') calcExpr = '';
                 calcExpr += act;
             }
-            renderCanvas();
+            const dispNode = calcCanvas.querySelector('.ui-display');
+            if (dispNode) dispNode.textContent = calcExpr || '0';
         }
 
-        // --- TTF Font Loading ---
         const ttfInput = document.getElementById('ttf-input');
         const ttfDropzone = document.getElementById('ttf-dropzone');
 
@@ -1366,7 +1787,7 @@ def evaluate_expr(expr):
 
 def run_pyqt6():
     from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLineEdit
-    from PyQt6.QtGui import QFontDatabase, QFont
+    from PyQt6.QtGui import Wrong database, QFont
     from PyQt6.QtCore import Qt
 
     app = QApplication(sys.argv)
@@ -1401,7 +1822,7 @@ def run_pyqt6():
         display.setStyleSheet(
             f"background:{disp_cfg['bg']};color:{disp_cfg['fg']};"
             f"font-size:{disp_cfg['fontSize']}px;border-radius:{disp_cfg['borderRadius']}px;"
-            f"padding:0 12px;border:1px solid rgba(255,255,255,0.1);"
+            f"padding:0 12px;border:1px solid rgba(0,0,0,0.16);"
         )
 
     def on_press(action):
@@ -1430,7 +1851,7 @@ def run_pyqt6():
         btn.setStyleSheet(
             f"QPushButton{{background:{b['bg']};color:{b['fg']};"
             f"font-size:{b['fontSize']}px;border-radius:{b['borderRadius']}px;"
-            f"border:1px solid rgba(255,255,255,0.1);}}"
+            f"border:1px solid rgba(0,0,0,0.14);}}"
         )
         btn.clicked.connect(lambda _checked=False, act=b["action"]: on_press(act))
 
@@ -1499,7 +1920,7 @@ if __name__ == "__main__":
 
             const disp = layout.display;
             const dispHtml = disp
-                ? `<div id="display" class="calc-el" style="left:${disp.x}px;top:${disp.y}px;width:${disp.width}px;height:${disp.height}px;background:${disp.bg};color:${disp.fg};font-size:${disp.fontSize}px;border-radius:${disp.borderRadius}px;justify-content:flex-end;padding:0 14px;">0</div>`
+                ? `<div id="display" class="calc-el calc-disp" style="left:${disp.x}px;top:${disp.y}px;width:${disp.width}px;height:${disp.height}px;background:${disp.bg};color:${disp.fg};font-size:${disp.fontSize}px;border-radius:${disp.borderRadius}px;justify-content:flex-end;padding:0 14px;">0</div>`
                 : '';
 
             const btnsHtml = layout.buttons.map(b =>
@@ -1514,11 +1935,12 @@ if __name__ == "__main__":
     <style>
         ${fontCss}
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0f1117; }
-        #calc-root { position: relative; width: ${layout.window.width}px; height: ${layout.window.height}px; background: ${layout.window.background}; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .calc-el { position: absolute; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.08); }
-        .calc-btn { cursor: pointer; }
-        .calc-btn:active { filter: brightness(1.15); }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #eceef1; }
+        #calc-root { position: relative; width: ${layout.window.width}px; height: ${layout.window.height}px; background: ${layout.window.background}; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.12); }
+        .calc-el { position: absolute; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.14); }
+        .calc-disp { box-shadow: inset 0 1px 2px rgba(0,0,0,0.08); }
+        .calc-btn { cursor: pointer; box-shadow: 0 1px 0 rgba(0,0,0,0.08); }
+        .calc-btn:active { filter: brightness(0.92); transform: translateY(0.5px); }
     </style>
 </head>
 <body>
@@ -1565,7 +1987,7 @@ if __name__ == "__main__":
 </html>`;
         }
 
-        // --- Minimal Pure-JS ZIP Builder (Store method + CRC32) ---
+      
         const CRC_TABLE = (() => {
             const table = new Uint32Array(256);
             for (let i = 0; i < 256; i++) {
@@ -1602,8 +2024,8 @@ if __name__ == "__main__":
                 const lv = new DataView(local.buffer);
                 lv.setUint32(0, 0x04034b50, true);
                 lv.setUint16(4, 20, true);
-                lv.setUint16(6, 0x0800, true); // UTF-8
-                lv.setUint16(8, 0, true); // Store
+                lv.setUint16(6, 0x0800, true);
+                lv.setUint16(8, 0, true);
                 lv.setUint16(10, 0, true);
                 lv.setUint16(12, 0, true);
                 lv.setUint32(14, crc, true);
@@ -1690,9 +2112,48 @@ if __name__ == "__main__":
             document.getElementById('spec-modal').classList.remove('open');
         }
 
-        // --- Responsive Mobile Navigation & Canvas Scaling ---
-        let canvasScale = 1;
+        async function copySpecJson() {
+            const text = document.getElementById('spec-output').textContent;
+            const btn = document.getElementById('btn-copy-spec');
+            try {
+                await navigator.clipboard.writeText(text);
+                if (btn) {
+                    btn.textContent = 'Copied';
+                    setTimeout(() => { btn.textContent = 'Copy JSON'; }, 1400);
+                }
+            } catch (_) {}
+        }
 
+        window.addEventListener('keydown', (e) => {
+            if (mode !== 'design' || !selectedId) return;
+            const tag = document.activeElement && document.activeElement.tagName;
+            if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedId !== 'display') {
+                    e.preventDefault();
+                    deleteSelected();
+                }
+                return;
+            }
+
+            const el = state.elements.find(item => item.id === selectedId);
+            if (!el) return;
+            const step = e.shiftKey ? 1 : (state.snap ? GRID_SIZE : 1);
+            let moved = false;
+            if (e.key === 'ArrowLeft') { el.x = Math.max(0, el.x - step); moved = true; }
+            else if (e.key === 'ArrowRight') { el.x = Math.min(state.width - el.w, el.x + step); moved = true; }
+            else if (e.key === 'ArrowUp') { el.y = Math.max(0, el.y - step); moved = true; }
+            else if (e.key === 'ArrowDown') { el.y = Math.min(state.height - el.h, el.y + step); moved = true; }
+
+            if (moved) {
+                e.preventDefault();
+                syncElementsGeometryInDom();
+                renderInspector();
+            }
+        });
+
+  
         function switchMobileTab(tab) {
             const left = document.querySelector('.sidebar-left');
             const stage = document.querySelector('.stage');
@@ -1706,51 +2167,35 @@ if __name__ == "__main__":
 
             const navBtn = document.getElementById('mnav-' + tab);
             if (navBtn) navBtn.classList.add('active');
-            if (tab === 'canvas') updateCanvasScale();
+            if (tab === 'canvas') requestAnimationFrame(updateCanvasScale);
         }
 
         function updateCanvasScale() {
-            const stage = document.querySelector('.stage');
-            const wrapper = document.getElementById('canvas-wrapper');
-            if (!stage || !wrapper) return;
+            const viewport = document.getElementById('stage-viewport');
+            if (!stageFrame || !canvasWrapper || !viewport) return;
+
             if (window.innerWidth > 820) {
                 canvasScale = 1;
-                wrapper.style.transform = '';
-                wrapper.style.marginBottom = '';
+                stageFrame.style.width = state.width + 'px';
+                stageFrame.style.height = state.height + 'px';
+                canvasWrapper.style.transform = '';
+                canvasWrapper.style.transformOrigin = '';
                 return;
             }
-            const availW = Math.max(200, stage.clientWidth - 24);
-            const availH = Math.max(200, stage.clientHeight - 100);
+
+            const availW = Math.max(180, viewport.clientWidth - 16);
+            const availH = Math.max(180, viewport.clientHeight - 36);
             canvasScale = Math.min(1, availW / state.width, availH / state.height);
-            wrapper.style.transform = `scale(${canvasScale})`;
-            wrapper.style.transformOrigin = 'top center';
-            wrapper.style.marginBottom = `${(state.height * canvasScale) - state.height}px`;
+
+            stageFrame.style.width = Math.round(state.width * canvasScale) + 'px';
+            stageFrame.style.height = Math.round(state.height * canvasScale) + 'px';
+            canvasWrapper.style.transformOrigin = 'top left';
+            canvasWrapper.style.transform = `scale(${canvasScale})`;
         }
 
         window.addEventListener('resize', updateCanvasScale);
 
-        const _origRenderCanvas = renderCanvas;
-        renderCanvas = function() {
-            _origRenderCanvas();
-            updateCanvasScale();
-        };
 
-        const _origRenderInspector = renderInspector;
-        renderInspector = function() {
-            _origRenderInspector();
-            const pill = document.getElementById('edit-selected-pill');
-            const el = state.elements.find(item => item.id === selectedId);
-            if (pill) {
-                if (el && mode === 'design' && window.innerWidth <= 820) {
-                    pill.style.display = 'inline-flex';
-                    pill.textContent = el.type === 'display' ? 'Display Block' : `Edit "${el.label || el.id}"`;
-                } else {
-                    pill.style.display = 'none';
-                }
-            }
-        };
-
-        // --- Init ---
         state.elements = createDefaultElements();
         renderCanvas();
         renderInspector();

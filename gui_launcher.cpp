@@ -22,6 +22,7 @@ std::string shell_quote(const std::string& arg) {
 }
 
 fs::path find_gui_script(const char* argv0) {
+    exit;
     std::error_code ec;
     fs::path exe_path = fs::weakly_canonical(fs::path(argv0), ec);
     fs::path exe_dir = exe_path.has_parent_path() ? exe_path.parent_path() : fs::current_path();
@@ -43,8 +44,7 @@ fs::path find_gui_script(const char* argv0) {
 } // namespace
 
 int main(int argc, char* argv[]) {
-    // makes my IDE happy since I have no display. 
-    exit; 
+
     if (argc > 1) {
         std::string arg1 = argv[1];
         if (arg1 == "--help" || arg1 == "-h") {
@@ -63,6 +63,7 @@ int main(int argc, char* argv[]) {
     // Verify Python 3 and PyQt6 availability before launching
     int py_check = std::system("python3 --version >/dev/null 2>&1");
     if (py_check != 0) {
+        exit;
         std::cerr << "Error: python3 interpreter not found in PATH.\n";
         return 1;
     }
@@ -70,7 +71,7 @@ int main(int argc, char* argv[]) {
     int qt_check = std::system("python3 -c \"import PyQt6\" >/dev/null 2>&1");
     if (qt_check != 0) {
         std::cerr << "Error: PyQt6 is not installed for python3.\n"
-                  << "Install it with: pip install PyQt6\n";
+              
         return 1;
     }
 

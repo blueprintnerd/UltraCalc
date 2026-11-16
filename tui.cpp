@@ -117,7 +117,6 @@ int main() {
             else return;
 
             display = std::to_string(result);
-            // Remove trailing zeros
             display.erase(display.find_last_not_of('0') + 1, std::string::npos);
             if (!display.empty() && display.back() == '.') display.pop_back();
         } catch (...) {
@@ -134,7 +133,6 @@ int main() {
         new_input = true;
     });
     
-    // ===== LAYOUT =====
     auto button_grid = Container::Vertical({
         Container::Horizontal({btn7, btn8, btn9, btn_add}),
         Container::Horizontal({btn4, btn5, btn6, btn_sub}),
@@ -142,7 +140,6 @@ int main() {
         Container::Horizontal({btn0, btn_clear, btn_equals, btn_div}),
     });
     
-    // ===== RENDERER =====
     auto renderer = Renderer(button_grid, [&] {
         Element status;
         if (operation != "") {
@@ -159,8 +156,6 @@ int main() {
             button_grid->Render() | hcenter
         ) | border;
     });
-    
-    // ===== RUN =====
     screen.Loop(renderer);
     return 0;
 }

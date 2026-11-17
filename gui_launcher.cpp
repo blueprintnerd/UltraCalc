@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
     int qt_check = std::system("python3 -c \"import PyQt6\" >/dev/null 2>&1");
     if (qt_check != 0) {
-        std::cerr << "Error: PyQt6 is not installed for python3.\n"
+        std::cerr << "Error: PyQt6 is not installed for python3.\n";
               
         return 1;
     }

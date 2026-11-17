@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/vercel/sandbox/UltraCalc/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

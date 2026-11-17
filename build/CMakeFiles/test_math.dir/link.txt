@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/test_math.dir/link.d CMakeFiles/test_math.dir/tests/test_math.cpp.o CMakeFiles/test_math.dir/math.cpp.o -o test_math

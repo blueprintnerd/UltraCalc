@@ -1,0 +1,68 @@
+[
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++ -DEXTENSIONPARSER_NO_MAIN -I/vercel/sandbox/UltraCalc -I/vercel/sandbox/UltraCalc/third_party/include -std=gnu++17 -o CMakeFiles/ultracalc-cli.dir/cli.cpp.o -c /vercel/sandbox/UltraCalc/cli.cpp",
+  "file": "/vercel/sandbox/UltraCalc/cli.cpp",
+  "output": "CMakeFiles/ultracalc-cli.dir/cli.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++ -DEXTENSIONPARSER_NO_MAIN -I/vercel/sandbox/UltraCalc -I/vercel/sandbox/UltraCalc/third_party/include -std=gnu++17 -o CMakeFiles/ultracalc-cli.dir/math.cpp.o -c /vercel/sandbox/UltraCalc/math.cpp",
+  "file": "/vercel/sandbox/UltraCalc/math.cpp",
+  "output": "CMakeFiles/ultracalc-cli.dir/math.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++ -DEXTENSIONPARSER_NO_MAIN -I/vercel/sandbox/UltraCalc -I/vercel/sandbox/UltraCalc/third_party/include -std=gnu++17 -o CMakeFiles/ultracalc-cli.dir/extensionparser.cpp.o -c /vercel/sandbox/UltraCalc/extensionparser.cpp",
+  "file": "/vercel/sandbox/UltraCalc/extensionparser.cpp",
+  "output": "CMakeFiles/ultracalc-cli.dir/extensionparser.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++  -I/vercel/sandbox/UltraCalc -I/vercel/sandbox/UltraCalc/third_party/include -std=gnu++17 -o CMakeFiles/ultracalc-ext.dir/extensionparser.cpp.o -c /vercel/sandbox/UltraCalc/extensionparser.cpp",
+  "file": "/vercel/sandbox/UltraCalc/extensionparser.cpp",
+  "output": "CMakeFiles/ultracalc-ext.dir/extensionparser.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++  -I/vercel/sandbox/UltraCalc -I/vercel/sandbox/UltraCalc/third_party/include -std=gnu++17 -o CMakeFiles/ultracalc-server.dir/serve.cpp.o -c /vercel/sandbox/UltraCalc/serve.cpp",
+  "file": "/vercel/sandbox/UltraCalc/serve.cpp",
+  "output": "CMakeFiles/ultracalc-server.dir/serve.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++  -I/vercel/sandbox/UltraCalc -I/vercel/sandbox/UltraCalc/third_party/include -std=gnu++17 -o CMakeFiles/ultracalc-server.dir/math.cpp.o -c /vercel/sandbox/UltraCalc/math.cpp",
+  "file": "/vercel/sandbox/UltraCalc/math.cpp",
+  "output": "CMakeFiles/ultracalc-server.dir/math.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++   -std=gnu++17 -o CMakeFiles/ultracalc-gui.dir/gui_launcher.cpp.o -c /vercel/sandbox/UltraCalc/gui_launcher.cpp",
+  "file": "/vercel/sandbox/UltraCalc/gui_launcher.cpp",
+  "output": "CMakeFiles/ultracalc-gui.dir/gui_launcher.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++  -I/vercel/sandbox/UltraCalc -std=gnu++17 -o CMakeFiles/test_math.dir/tests/test_math.cpp.o -c /vercel/sandbox/UltraCalc/tests/test_math.cpp",
+  "file": "/vercel/sandbox/UltraCalc/tests/test_math.cpp",
+  "output": "CMakeFiles/test_math.dir/tests/test_math.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++  -I/vercel/sandbox/UltraCalc -std=gnu++17 -o CMakeFiles/test_math.dir/math.cpp.o -c /vercel/sandbox/UltraCalc/math.cpp",
+  "file": "/vercel/sandbox/UltraCalc/math.cpp",
+  "output": "CMakeFiles/test_math.dir/math.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++ -DEXTENSIONPARSER_NO_MAIN -I/vercel/sandbox/UltraCalc -I/vercel/sandbox/UltraCalc/third_party/include -std=gnu++17 -o CMakeFiles/test_extensionparser.dir/tests/test_extensionparser.cpp.o -c /vercel/sandbox/UltraCalc/tests/test_extensionparser.cpp",
+  "file": "/vercel/sandbox/UltraCalc/tests/test_extensionparser.cpp",
+  "output": "CMakeFiles/test_extensionparser.dir/tests/test_extensionparser.cpp.o"
+},
+{
+  "directory": "/vercel/sandbox/UltraCalc/build",
+  "command": "/usr/bin/c++ -DEXTENSIONPARSER_NO_MAIN -I/vercel/sandbox/UltraCalc -I/vercel/sandbox/UltraCalc/third_party/include -std=gnu++17 -o CMakeFiles/test_extensionparser.dir/extensionparser.cpp.o -c /vercel/sandbox/UltraCalc/extensionparser.cpp",
+  "file": "/vercel/sandbox/UltraCalc/extensionparser.cpp",
+  "output": "CMakeFiles/test_extensionparser.dir/extensionparser.cpp.o"
+}
+]

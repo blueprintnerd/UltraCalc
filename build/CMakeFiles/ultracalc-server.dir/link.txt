@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/ultracalc-server.dir/link.d "CMakeFiles/ultracalc-server.dir/serve.cpp.o" "CMakeFiles/ultracalc-server.dir/math.cpp.o" -o ultracalc-server

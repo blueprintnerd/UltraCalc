@@ -56,7 +56,6 @@ bool split_on_keyword(const std::string& text, const std::string& keyword, std::
 }
 
 bool split_infix_operator(const std::string& text, char& op_out, std::string& left_out, std::string& right_out) {
-    // Scan from index 1 so a leading unary minus on the left operand is not treated as binary '-'
     for (size_t i = 1; i < text.size(); ++i) {
         char c = text[i];
         if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%') {

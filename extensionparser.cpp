@@ -366,9 +366,9 @@ int install_extension(const std::string& extension_file, const std::string& cust
 #ifndef EXTENSIONPARSER_NO_MAIN
 static void print_usage(const char* prog) {
     std::cout << "Usage:\n"
-              << "  " << prog << " install <archive.uce> [-o <dir>]   Install an extension\n"
-              << "  " << prog << " list [-d <dir>]                    List installed extensions\n"
-              << "  " << prog << " validate <archive.uce>             Validate an extension archive\n";
+              << "  " << prog << " install <ext.uce> [-o <dir>]   Install an extension\n"
+              << "  " << prog << " list [-d <dir>]                List installed extensions\n"
+              << "  " << prog << " validate <ext.uce>             Validate an extension\n";
 }
 
 int main(int argc, char* argv[]) {

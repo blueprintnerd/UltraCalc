@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/ultracalc-gui.dir/link.d "CMakeFiles/ultracalc-gui.dir/gui_launcher.cpp.o" -o ultracalc-gui

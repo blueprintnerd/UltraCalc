@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/ultracalc-ext.dir/link.d "CMakeFiles/ultracalc-ext.dir/extensionparser.cpp.o" -o ultracalc-ext

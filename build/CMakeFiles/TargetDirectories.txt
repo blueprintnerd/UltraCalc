@@ -1,9 +1,0 @@
-/vercel/sandbox/UltraCalc/build/CMakeFiles/ultracalc-cli.dir
-/vercel/sandbox/UltraCalc/build/CMakeFiles/ultracalc-ext.dir
-/vercel/sandbox/UltraCalc/build/CMakeFiles/ultracalc-server.dir
-/vercel/sandbox/UltraCalc/build/CMakeFiles/ultracalc-gui.dir
-/vercel/sandbox/UltraCalc/build/CMakeFiles/test_math.dir
-/vercel/sandbox/UltraCalc/build/CMakeFiles/test_extensionparser.dir
-/vercel/sandbox/UltraCalc/build/CMakeFiles/test.dir
-/vercel/sandbox/UltraCalc/build/CMakeFiles/edit_cache.dir
-/vercel/sandbox/UltraCalc/build/CMakeFiles/rebuild_cache.dir

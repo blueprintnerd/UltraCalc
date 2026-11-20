@@ -195,7 +195,7 @@
 
         #canvas-wrapper {
             position: relative;
-           
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.14);
             border-radius: 10px;
             overflow: hidden;
             user-select: none;
@@ -707,6 +707,7 @@
                 bottom: -9px;
                 border-radius: 50%;
                 border-width: 2px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
             }
 
             .canvas-resize-handle {
@@ -1153,7 +1154,12 @@
             div.style.borderRadius = el.radius + 'px';
             div.style.fontFamily = fontFamily;
             div.style.fontWeight = el.type === 'display' ? '600' : '500';
-           
+            div.style.border = el.type === 'display'
+                ? '1px solid rgba(0, 0, 0, 0.16)'
+                : '1px solid rgba(0, 0, 0, 0.14)';
+            div.style.boxShadow = el.type === 'display'
+                ? 'inset 0 1px 2px rgba(0, 0, 0, 0.08)'
+                : '0 1px 0 rgba(0, 0, 0, 0.08)';
         }
 
         function syncCanvasChrome() {
@@ -1552,7 +1558,7 @@
             renderInspector();
         }
 
-      
+        // --- Mode & Preview Calculator ---
         function setMode(nextMode) {
             mode = nextMode;
             calcExpr = '';
@@ -1603,7 +1609,7 @@
                         return data.error.toLowerCase().includes('zero') ? 'Div/0' : 'Err';
                     }
                 } catch (_) {
-                    // Fall back to local evaluation if serv
+                    // Fall back to local evaluation if server is unreachable
                 }
             }
             return evaluateCalcExpression(expr);
@@ -1632,6 +1638,7 @@
             if (dispNode) dispNode.textContent = calcExpr || '0';
         }
 
+        // --- TTF Font Loading ---
         const ttfInput = document.getElementById('ttf-input');
         const ttfDropzone = document.getElementById('ttf-dropzone');
 
@@ -1681,7 +1688,8 @@
             document.getElementById('btn-clear-ttf').style.display = 'none';
             renderCanvas();
         }
-        
+
+        // --- Spec Generation ---
         function buildSpecs() {
             const name = (document.getElementById('ext-name').value.trim() || 'ucalc-custom-gui');
             const version = (document.getElementById('ext-version').value.trim() || '1.0.0');
@@ -1785,7 +1793,7 @@ def evaluate_expr(expr):
 
 def run_pyqt6():
     from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QLineEdit
-    from PyQt6.QtGui import Wrong database, QFont
+    from PyQt6.QtGui import QFontDatabase, QFont
     from PyQt6.QtCore import Qt
 
     app = QApplication(sys.argv)
@@ -1937,7 +1945,7 @@ if __name__ == "__main__":
         #calc-root { position: relative; width: ${layout.window.width}px; height: ${layout.window.height}px; background: ${layout.window.background}; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.12); }
         .calc-el { position: absolute; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.14); }
         .calc-disp { box-shadow: inset 0 1px 2px rgba(0,0,0,0.08); }
-        .calc-btn { cursor: pointer; }
+        .calc-btn { cursor: pointer; box-shadow: 0 1px 0 rgba(0,0,0,0.08); }
         .calc-btn:active { filter: brightness(0.92); transform: translateY(0.5px); }
     </style>
 </head>
@@ -1985,7 +1993,7 @@ if __name__ == "__main__":
 </html>`;
         }
 
-      
+        // --- Minimal Pure-JS ZIP Builder (Store method + CRC32) ---
         const CRC_TABLE = (() => {
             const table = new Uint32Array(256);
             for (let i = 0; i < 256; i++) {
@@ -2151,7 +2159,7 @@ if __name__ == "__main__":
             }
         });
 
-  
+        // --- Mobile Navigation & Responsive Canvas Scaling ---
         function switchMobileTab(tab) {
             const left = document.querySelector('.sidebar-left');
             const stage = document.querySelector('.stage');
@@ -2193,7 +2201,7 @@ if __name__ == "__main__":
 
         window.addEventListener('resize', updateCanvasScale);
 
-
+        // --- Init ---
         state.elements = createDefaultElements();
         renderCanvas();
         renderInspector();

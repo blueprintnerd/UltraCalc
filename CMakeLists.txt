@@ -3,6 +3,7 @@ project(UltraCalc)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Enable C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -15,9 +16,11 @@ add_executable(ultracalc-cli cli.cpp math.cpp extensionparser.cpp)
 target_compile_definitions(ultracalc-cli PRIVATE EXTENSIONPARSER_NO_MAIN)
 target_include_directories(ultracalc-cli PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${THIRD_PARTY_INCLUDE_DIR})
 
+# 2. ultracalc-ext
 add_executable(ultracalc-ext extensionparser.cpp)
 target_include_directories(ultracalc-ext PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${THIRD_PARTY_INCLUDE_DIR})
 
+# 3. ultracalc-server
 add_executable(ultracalc-server serve.cpp math.cpp)
 target_include_directories(ultracalc-server PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${THIRD_PARTY_INCLUDE_DIR})
 target_link_libraries(ultracalc-server PRIVATE Threads::Threads)

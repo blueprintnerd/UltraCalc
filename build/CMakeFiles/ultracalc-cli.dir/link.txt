@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/ultracalc-cli.dir/link.d "CMakeFiles/ultracalc-cli.dir/cli.cpp.o" "CMakeFiles/ultracalc-cli.dir/math.cpp.o" "CMakeFiles/ultracalc-cli.dir/extensionparser.cpp.o" -o ultracalc-cli

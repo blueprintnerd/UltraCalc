@@ -1,38 +1,22 @@
 # UltraCalc
 
-A multi-interface calculator suite with a shared C++ math engine, CLI, TUI, PyQt6 desktop GUI, HTTP server with visual UI generator, and extension manager.
-
+A cool calculator app
 ## Building
 
 Run the build script from the repository root:
 
 ```bash
 ./build.sh --clean
-```
-
-Flags:
-- `--clean`: Remove `build/` and `bin/` before building
-- `--debug`: Configure with `Debug`
-- `--release`: Configure with `Release` (default)
-- `--package`: Generate standalone release archives in `dist/` (`.tar.gz` and `.zip`)
-
-All executables and runtime assets are staged into `bin/`:
-- `bin/ultracalc-cli`
-- `bin/ultracalc-tui`
-- `bin/ultracalc-gui` (with `bin/guiqt.py`)
-- `bin/ultracalc-server` (with `bin/uigen.html`)
-- `bin/ultracalc-ext`
-
+```can
 ## Usage
 
 ### CLI (`ultracalc-cli`)
 
-Interactive REPL:
 ```bash
 ./bin/ultracalc-cli
 ```
 
-Canonical API mode:
+API:
 ```bash
 ./bin/ultracalc-cli --calcapi mul 8 7
 ```
@@ -45,7 +29,7 @@ Canonical API mode:
 
 ### Desktop GUI (`ultracalc-gui`)
 
-Requires Python 3 and `PyQt6` (`pip install PyQt6`):
+Requires Python 3 and PyQt6
 ```bash
 ./bin/ultracalc-gui
 ```
@@ -64,17 +48,6 @@ Open `http://localhost:8080/` in a browser.
 ./bin/ultracalc-ext install my-ext.uce
 ./bin/ultracalc-ext list
 
-# Or via the CLI (directly or inside the REPL):
 ./bin/ultracalc-cli ext install my-ext.uce
 ```
 
-## Testing
-
-```bash
-ctest --test-dir build --output-on-failure
-```
-
-## Documentation
-
-- [ultracalcAPI.md](ultracalcAPI.md) - CLI `--calcapi` and HTTP REST API specification
-- [CALCULATOR_GUIDE.md](CALCULATOR_GUIDE.md) - TUI calculator guide

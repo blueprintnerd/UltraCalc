@@ -6,6 +6,7 @@ BUILD_DIR="${ROOT_DIR}/build"
 BIN_DIR="${ROOT_DIR}/bin"
 BUILD_TYPE="Release"
 CLEAN=0
+PACKAGE=0
 
 for arg in "$@"; do
     case "$arg" in
@@ -18,8 +19,11 @@ for arg in "$@"; do
         --release)
             BUILD_TYPE="Release"
             ;;
+        --package)
+            PACKAGE=1
+            ;;
         --help|-h)
-            echo "Usage: $0 [--clean] [--debug|--release]"
+            echo "Usage: $0 [--clean] [--debug|--release] [--package]"
             exit 0
             ;;
         *)
@@ -69,3 +73,34 @@ cp "${ROOT_DIR}/uigen.html" "${BIN_DIR}/uigen.html"
 
 echo "Build complete. Staged artifacts in ${BIN_DIR}/:"
 ls -lh "$BIN_DIR"
+
+if [[ "$PACKAGE" -eq 1 ]]; then
+    DIST_DIR="${ROOT_DIR}/dist"
+    ARCH="$(uname -m)"
+    PKG_NAME="ultracalc-v1.0.0-linux-${ARCH}"
+    PKG_STAGE="${DIST_DIR}/${PKG_NAME}"
+
+    echo "Packaging release into ${DIST_DIR}..."
+    rm -rf "$PKG_STAGE"
+    mkdir -p "${PKG_STAGE}/bin"
+
+    cp -a "${BIN_DIR}/"* "${PKG_STAGE}/bin/"
+    rm -rf "${PKG_STAGE}/bin/__pycache__"
+    cp "${ROOT_DIR}/README.md" "${PKG_STAGE}/"
+    cp "${ROOT_DIR}/ultracalcAPI.md" "${PKG_STAGE}/"
+    cp "${ROOT_DIR}/CALCULATOR_GUIDE.md" "${PKG_STAGE}/"
+    cp "${ROOT_DIR}/exmanifest.json" "${PKG_STAGE}/"
+
+    cd "$DIST_DIR"
+    tar -czf "${PKG_NAME}.tar.gz" "${PKG_NAME}"
+    if command -v zip >/dev/null 2>&1; then
+        zip -rq "${PKG_NAME}.zip" "${PKG_NAME}"
+    else
+        python3 -m zipfile -c "${PKG_NAME}.zip" "${PKG_NAME}"
+    fi
+    rm -rf "${PKG_NAME}"
+    cd "$ROOT_DIR"
+
+    echo "Release packages created in ${DIST_DIR}:"
+    ls -lh "${DIST_DIR}"
+fi

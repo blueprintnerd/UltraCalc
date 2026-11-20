@@ -14,6 +14,7 @@ Flags:
 - `--clean`: Remove `build/` and `bin/` before building
 - `--debug`: Configure with `Debug`
 - `--release`: Configure with `Release` (default)
+- `--package`: Generate standalone release archives in `dist/` (`.tar.gz` and `.zip`)
 
 All executables and runtime assets are staged into `bin/`:
 - `bin/ultracalc-cli`
